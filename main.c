@@ -1,108 +1,216 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic 3d example
-*
-*   Welcome to raylib!
-*
-*   To compile example, just press F5.
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   This example has been created using raylib 1.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2013-2023 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
+#include <stdlib.h>
+#include <math.h>
 
-#if defined(PLATFORM_WEB)
-    #include <emscripten/emscripten.h>
-#endif
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define PLAYER_SIZE 20
+#define SHARK_SIZE 30
+#define SAFE_ZONE_SIZE 50
+#define PLAYER_SPEED 3.0f
+#define SHARK_SPEED 2.0f
+#define COLLISION_RADIUS 20
+#define MIN_DISTANCE 150
+#define SAFE_ZONE_THRESHOLD 100  
+#define SEPARATION_DISTANCE 80   
 
-//----------------------------------------------------------------------------------
-// Local Variables Definition (local to this module)
-//----------------------------------------------------------------------------------
-Camera camera = { 0 };
-Vector3 cubePosition = { 0 };
+typedef struct {
+    Vector2 posicao;
+    float speed;
+} Player;
 
-//----------------------------------------------------------------------------------
-// Local Functions Declaration
-//----------------------------------------------------------------------------------
-static void UpdateDrawFrame(void);          // Update and draw one frame
+typedef struct Tubarao {
+    Vector2 posicao;
+    float speed;
+    struct Tubarao* prox;
+    struct Tubarao* prev;
+} Tubarao;
 
-//----------------------------------------------------------------------------------
-// Main entry point
-//----------------------------------------------------------------------------------
-int main()
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+typedef struct {
+    Vector2 posicao;
+    float raio;
+} ZonaSegura;
 
-    InitWindow(screenWidth, screenHeight, "raylib");
-
-    camera.position = (Vector3){ 10.0f, 10.0f, 8.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 60.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
-
-    //--------------------------------------------------------------------------------------
-
-#if defined(PLATFORM_WEB)
-    emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
-#else
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        UpdateDrawFrame();
-    }
-#endif
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();                  // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+float calcularDistancia(Vector2 a, Vector2 b) {
+    return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 }
 
-// Update and draw game frame
-static void UpdateDrawFrame(void)
-{
-    // Update
-    //----------------------------------------------------------------------------------
-    UpdateCamera(&camera, CAMERA_ORBITAL);
-    //----------------------------------------------------------------------------------
+void forcaSeparacaoTubaroes(Tubarao* head) {
+    Tubarao* temp = head;
+    while (temp != NULL) {
+        Tubarao* other = head;
+        Vector2 separationForce = { 0, 0 };
+        
+        while (other != NULL) {
+            if (other != temp) {
+                float distance = calcularDistancia(temp->posicao, other->posicao);
+                if (distance < SEPARATION_DISTANCE) {
+                    Vector2 repel = {
+                        temp->posicao.x - other->posicao.x,
+                        temp->posicao.y - other->posicao.y
+                    };
+                    float magnitude = sqrtf(repel.x * repel.x + repel.y * repel.y);
+                    repel.x /= magnitude;
+                    repel.y /= magnitude;
 
-    // Draw
-    //----------------------------------------------------------------------------------
-    BeginDrawing();
+                    // Aumenta a força de repulsão para evitar sobreposição
+                    separationForce.x += repel.x / (distance * 0.3f);
+                    separationForce.y += repel.y / (distance * 0.3f);
+                }
+            }
+            other = other->prox;
+        }
+        
+        // Aplica a força de separação mais intensa
+        temp->posicao.x += separationForce.x * 1.5f;
+        temp->posicao.y += separationForce.y * 1.5f;
+        
+        temp = temp->prox;
+    }
+}
 
+Tubarao* criarTubarao(float x, float y, float speed) {
+    Tubarao* novo = (Tubarao*)malloc(sizeof(Tubarao));
+    novo->posicao = (Vector2){ x, y };
+    novo->speed = speed;
+    novo->prox = NULL;
+    novo->prev = NULL;
+    return novo;
+}
+
+void addTubarao(Tubarao** head, float x, float y, float speed) {
+    Tubarao* novo = criarTubarao(x, y, speed);
+    if (*head == NULL) {
+        *head = novo;
+    } else {
+        Tubarao* temp = *head;
+        while (temp->prox != NULL) {
+            temp = temp->prox;
+        }
+        temp->prox = novo;
+        novo->prev = temp;
+    }
+}
+
+void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
+    for (int i = 0; i < numSharks; i++) {
+        float x, y;
+        do {
+            x = GetRandomValue(0, SCREEN_WIDTH);
+            y = GetRandomValue(0, SCREEN_HEIGHT);
+        } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);  // Garante distância mínima
+
+        addTubarao(head, x, y, SHARK_SPEED);
+    }
+}
+
+void velocidadeAleatoriaTubarao(Tubarao* head, float increment) {
+    Tubarao* aux = head;
+    while (aux != NULL) {
+        if (GetRandomValue(0, 1) == 1) {
+            aux->speed += increment;
+        }
+        aux = aux->prox;
+    }
+}
+
+void moverTubarao(Tubarao* head, Player player) {
+    Tubarao* temp = head;
+
+    while (temp != NULL) {
+        Vector2 direction = {
+            player.posicao.x - temp->posicao.x + ((float)GetRandomValue(-10, 10) / 100.0f),
+            player.posicao.y - temp->posicao.y + ((float)GetRandomValue(-10, 10) / 100.0f)
+        };
+        float magnitude = sqrtf(direction.x * direction.x + direction.y * direction.y);
+
+        direction.x /= magnitude;
+        direction.y /= magnitude;
+
+        temp->posicao.x += direction.x * temp->speed;
+        temp->posicao.y += direction.y * temp->speed;
+
+        temp = temp->prox;
+    }
+
+    forcaSeparacaoTubaroes(head);  // Aplica a força de separação após movimentar os tubarões
+}
+
+int main(void) {
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Fuga dos Tubarões");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);  // Permite alternar para tela cheia
+    ToggleFullscreen(); 
+
+    Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
+    Tubarao* head = NULL;
+    ZonaSegura zonaSegura = { .posicao = {SCREEN_WIDTH - SAFE_ZONE_SIZE, SCREEN_HEIGHT - SAFE_ZONE_SIZE}, .raio = SAFE_ZONE_SIZE };
+
+    inicializarTubarao(&head, 5, player);
+
+    bool gameOver = false;
+    bool vitoria = false;
+    bool aumentoVelocidade = false;
+
+    SetTargetFPS(60);
+
+    while (!WindowShouldClose()) {
+        if (!gameOver && !vitoria) {
+            if (IsKeyDown(KEY_RIGHT)) player.posicao.x += player.speed;
+            if (IsKeyDown(KEY_LEFT)) player.posicao.x -= player.speed;
+            if (IsKeyDown(KEY_UP)) player.posicao.y -= player.speed;
+            if (IsKeyDown(KEY_DOWN)) player.posicao.y += player.speed;
+
+            float distanciaZonaSegura = calcularDistancia(player.posicao, zonaSegura.posicao);
+            if (distanciaZonaSegura < SAFE_ZONE_THRESHOLD && !aumentoVelocidade) {
+                velocidadeAleatoriaTubarao(head, 1.0f);
+                aumentoVelocidade = true;
+            }
+
+            moverTubarao(head, player);
+
+            Tubarao* temp = head;
+            while (temp != NULL) {
+                if (calcularDistancia(player.posicao, temp->posicao) < COLLISION_RADIUS) {
+                    gameOver = true;
+                    break;
+                }
+                temp = temp->prox;
+            }
+
+            if (distanciaZonaSegura < zonaSegura.raio) {
+                vitoria = true;
+            }
+        }
+
+        BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        BeginMode3D(camera);
+        if (gameOver) {
+            DrawText("Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2, 20, RED);
+        } else if (vitoria) {
+            DrawText("Parabéns! Você chegou à área segura!", 150, SCREEN_HEIGHT / 2, 20, GREEN);
+        } else {
+            DrawCircleV(player.posicao, PLAYER_SIZE, BLUE);
+            Tubarao* temp = head;
+            while (temp != NULL) {
+                DrawCircleV(temp->posicao, SHARK_SIZE, RED);
+                temp = temp->prox;
+            }
 
-            DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
-            DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
-            DrawGrid(10, 1.0f);
+            DrawCircleV(zonaSegura.posicao, zonaSegura.raio, GREEN);
+            DrawText("Área Segura", zonaSegura.posicao.x - 20, zonaSegura.posicao.y, 10, DARKGREEN);
+        }
 
-        EndMode3D();
+        EndDrawing();
+    }
 
-        DrawText("This is a raylib example", 10, 40, 20, DARKGRAY);
+    Tubarao* aux = head;
+    while (aux != NULL) {
+        Tubarao* prox = aux->prox;
+        free(aux);
+        aux = prox;
+    }
 
-        DrawFPS(10, 10);
-
-    EndDrawing();
-    //----------------------------------------------------------------------------------
+    CloseWindow();
+    return 0;
 }
