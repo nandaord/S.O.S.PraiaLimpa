@@ -35,51 +35,13 @@ float calcularDistancia(Vector2 a, Vector2 b) {
     return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 }
 
-void forcaSeparacaoTubaroes(Tubarao* head) {
-    Tubarao* temp = head;
-    while (temp != NULL) {
-        Tubarao* other = head;
-        Vector2 separationForce = { 0, 0 };
-        
-        while (other != NULL) {
-            if (other != temp) {
-                float distance = calcularDistancia(temp->posicao, other->posicao);
-                if (distance < SEPARATION_DISTANCE) {
-                    Vector2 repel = {
-                        temp->posicao.x - other->posicao.x,
-                        temp->posicao.y - other->posicao.y
-                    };
-                    float magnitude = sqrtf(repel.x * repel.x + repel.y * repel.y);
-                    repel.x /= magnitude;
-                    repel.y /= magnitude;
-
-                    // Aumenta a força de repulsão para evitar sobreposição
-                    separationForce.x += repel.x / (distance * 0.3f);
-                    separationForce.y += repel.y / (distance * 0.3f);
-                }
-            }
-            other = other->prox;
-        }
-        
-        // Aplica a força de separação mais intensa
-        temp->posicao.x += separationForce.x * 1.5f;
-        temp->posicao.y += separationForce.y * 1.5f;
-        
-        temp = temp->prox;
-    }
-}
-
-Tubarao* criarTubarao(float x, float y, float speed) {
+void addTubarao(Tubarao** head, float x, float y, float speed) {
     Tubarao* novo = (Tubarao*)malloc(sizeof(Tubarao));
     novo->posicao = (Vector2){ x, y };
     novo->speed = speed;
     novo->prox = NULL;
     novo->prev = NULL;
-    return novo;
-}
 
-void addTubarao(Tubarao** head, float x, float y, float speed) {
-    Tubarao* novo = criarTubarao(x, y, speed);
     if (*head == NULL) {
         *head = novo;
     } else {
@@ -98,9 +60,60 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
         do {
             x = GetRandomValue(0, SCREEN_WIDTH);
             y = GetRandomValue(0, SCREEN_HEIGHT);
-        } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);  // Garante distância mínima
+        } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
 
         addTubarao(head, x, y, SHARK_SPEED);
+    }
+}
+
+void reiniciarJogo(Player* player, Tubarao** head, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade) {
+    // Reinicia a posição e estado do jogador
+    player->posicao = (Vector2){100, 100};
+    *gameOver = false;
+    *vitoria = false;
+    *aumentoVelocidade = false;
+    *telaInicial = true;
+
+    // Limpa a lista de tubarões e reinicializa
+    Tubarao* aux = *head;
+    while (aux != NULL) {
+        Tubarao* prox = aux->prox;
+        free(aux);
+        aux = prox;
+    }
+    *head = NULL;
+    inicializarTubarao(head, 5, *player);
+}
+
+void forcaSeparacaoTubaroes(Tubarao* head) {
+    Tubarao* temp = head;
+    while (temp != NULL) {
+        Tubarao* other = head;
+        Vector2 separationForce = { 0, 0 };
+        
+        while (other != NULL) {
+            if (other != temp) {
+                float distance = calcularDistancia(temp->posicao, other->posicao);
+                if (distance < SEPARATION_DISTANCE) {
+                    Vector2 repel = {
+                        temp->posicao.x - other->posicao.x,
+                        temp->posicao.y - other->posicao.y
+                    };
+                    float magnitude = sqrtf(repel.x * repel.x + repel.y * repel.y);
+                    repel.x /= magnitude;
+                    repel.y /= magnitude;
+
+                    separationForce.x += repel.x / (distance * 0.3f);
+                    separationForce.y += repel.y / (distance * 0.3f);
+                }
+            }
+            other = other->prox;
+        }
+        
+        temp->posicao.x += separationForce.x * 1.5f;
+        temp->posicao.y += separationForce.y * 1.5f;
+        
+        temp = temp->prox;
     }
 }
 
@@ -133,13 +146,11 @@ void moverTubarao(Tubarao* head, Player player) {
         temp = temp->prox;
     }
 
-    forcaSeparacaoTubaroes(head);  // Aplica a força de separação após movimentar os tubarões
+    forcaSeparacaoTubaroes(head);
 }
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Fuga dos Tubarões");
-    SetWindowState(FLAG_WINDOW_RESIZABLE);  // Permite alternar para tela cheia
-    ToggleFullscreen(); 
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
@@ -150,11 +161,44 @@ int main(void) {
     bool gameOver = false;
     bool vitoria = false;
     bool aumentoVelocidade = false;
+    bool telaInicial = true;
 
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
-        if (!gameOver && !vitoria) {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        if (telaInicial) {
+            DrawText("Fuga dos Tubarões", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 4, 30, DARKBLUE);
+
+            // Botão Iniciar
+            Rectangle botaoIniciar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 20, 100, 40};
+            DrawRectangleRec(botaoIniciar, BLUE);
+            DrawText("Iniciar", botaoIniciar.x + 10, botaoIniciar.y + 10, 20, WHITE);
+
+            // Botão Sair
+            Rectangle botaoSair = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 50, 100, 40};
+            DrawRectangleRec(botaoSair, RED);
+            DrawText("Sair", botaoSair.x + 20, botaoSair.y + 10, 20, WHITE);
+
+            Vector2 mousePos = GetMousePosition();
+            if (CheckCollisionPointRec(mousePos, botaoIniciar) || CheckCollisionPointRec(mousePos, botaoSair)) {
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            } else {
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            }
+
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
+                    telaInicial = false;
+                } else if (CheckCollisionPointRec(mousePos, botaoSair)) {
+                    CloseWindow();
+                    return 0;
+                }
+            }
+
+        } else if (!gameOver && !vitoria) {
             if (IsKeyDown(KEY_RIGHT)) player.posicao.x += player.speed;
             if (IsKeyDown(KEY_LEFT)) player.posicao.x -= player.speed;
             if (IsKeyDown(KEY_UP)) player.posicao.y -= player.speed;
@@ -180,18 +224,9 @@ int main(void) {
             if (distanciaZonaSegura < zonaSegura.raio) {
                 vitoria = true;
             }
-        }
 
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-
-        if (gameOver) {
-            DrawText("Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2, 20, RED);
-        } else if (vitoria) {
-            DrawText("Parabéns! Você chegou à área segura!", 150, SCREEN_HEIGHT / 2, 20, GREEN);
-        } else {
             DrawCircleV(player.posicao, PLAYER_SIZE, BLUE);
-            Tubarao* temp = head;
+            temp = head;
             while (temp != NULL) {
                 DrawCircleV(temp->posicao, SHARK_SIZE, RED);
                 temp = temp->prox;
@@ -199,11 +234,25 @@ int main(void) {
 
             DrawCircleV(zonaSegura.posicao, zonaSegura.raio, GREEN);
             DrawText("Área Segura", zonaSegura.posicao.x - 20, zonaSegura.posicao.y, 10, DARKGREEN);
+
+        } else {
+            DrawText(gameOver ? "Você foi pego pelos tubarões! Fim de jogo!" : "Parabéns! Você chegou à área segura!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
+            
+            // Botão de Reiniciar
+            Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 40, 100, 40};
+            DrawRectangleRec(botaoReiniciar, GREEN);
+            DrawText("Reiniciar", botaoReiniciar.x + 10, botaoReiniciar.y + 10, 20, WHITE);
+
+            Vector2 mousePos = GetMousePosition();
+            if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                reiniciarJogo(&player, &head, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade);
+            }
         }
 
         EndDrawing();
     }
 
+    // Liberação dos recursos
     Tubarao* aux = head;
     while (aux != NULL) {
         Tubarao* prox = aux->prox;
