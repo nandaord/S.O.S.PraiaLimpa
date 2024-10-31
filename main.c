@@ -150,7 +150,7 @@ void moverTubarao(Tubarao* head, Player player) {
 }
 
 int main(void) {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Fuga dos Tubarões");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
@@ -170,35 +170,87 @@ int main(void) {
         ClearBackground(RAYWHITE);
 
         if (telaInicial) {
-            DrawText("Fuga dos Tubarões", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 4, 30, DARKBLUE);
+    // Desenhar fundo
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255}); // Fundo azul claro
 
-            // Botão Iniciar
-            Rectangle botaoIniciar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 20, 100, 40};
-            DrawRectangleRec(botaoIniciar, BLUE);
-            DrawText("Iniciar", botaoIniciar.x + 10, botaoIniciar.y + 10, 20, WHITE);
+    Font myFont = LoadFont("C:/jogoAED/story_milky/Story Milky.ttf");
+    Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 80, 2);
+    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 80, 2, (Color){70, 130, 180, 255}); // Texto azul
 
-            // Botão Sair
-            Rectangle botaoSair = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 50, 100, 40};
-            DrawRectangleRec(botaoSair, RED);
-            DrawText("Sair", botaoSair.x + 20, botaoSair.y + 10, 20, WHITE);
+    // Definindo cores com base na paleta fornecida
+Color corBotaoIniciar = (Color){135, 206, 250, 255}; // Azul claro
+Color corBotaoRanking = (Color){100, 149, 237, 255}; // Azul intermediário (Cornflower Blue)
+Color corBotaoInstrucoes = (Color){70, 130, 180, 255}; // Azul médio (Steel Blue)
+Color corBotaoSair = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
+Color corTexto = (Color){255, 255, 255, 255}; // Branco
+Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
 
-            Vector2 mousePos = GetMousePosition();
-            if (CheckCollisionPointRec(mousePos, botaoIniciar) || CheckCollisionPointRec(mousePos, botaoSair)) {
-                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-            } else {
-                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-            }
+    // Definindo a altura e largura dos botões
+// Definindo a altura e largura dos botões
+const int botaoLargura = 200;
+const int botaoAltura = 50;
+const int espacoEntreBotoes = 20; // Espaçamento entre os botões
 
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
-                    telaInicial = false;
-                } else if (CheckCollisionPointRec(mousePos, botaoSair)) {
-                    CloseWindow();
-                    return 0;
-                }
-            }
+// Botão Iniciar
+// Botão Iniciar
+Rectangle botaoIniciar = {
+    SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+    SCREEN_HEIGHT / 2 - 30, // Mover o botão para cima
+    botaoLargura,
+    botaoAltura
+};
+DrawRectangleRec(botaoIniciar, corBotaoIniciar);
+DrawRectangleLines(botaoIniciar.x, botaoIniciar.y, botaoIniciar.width, botaoIniciar.height, corBorda);
+DrawText("Iniciar", botaoIniciar.x + 10, botaoIniciar.y + 10, 20, corTexto);
 
-        } else if (!gameOver && !vitoria) {
+// Botão Ranking
+Rectangle botaoRanking = {
+    SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+    botaoIniciar.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Iniciar
+    botaoLargura,
+    botaoAltura
+};
+DrawRectangleRec(botaoRanking, corBotaoRanking);
+DrawRectangleLines(botaoRanking.x, botaoRanking.y, botaoRanking.width, botaoRanking.height, corBorda);
+DrawText("Ranking", botaoRanking.x + 10, botaoRanking.y + 10, 20, corTexto);
+
+// Botão Instruções
+Rectangle botaoInstrucoes = {
+    SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+    botaoRanking.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Ranking
+    botaoLargura,
+    botaoAltura
+};
+DrawRectangleRec(botaoInstrucoes, corBotaoRanking);
+DrawRectangleLines(botaoInstrucoes.x, botaoInstrucoes.y, botaoInstrucoes.width, botaoInstrucoes.height, corBorda);
+DrawText("Instruções", botaoInstrucoes.x + 10, botaoInstrucoes.y + 10, 20, corTexto);
+
+// Botão Sair
+Rectangle botaoSair = {
+    SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+    botaoInstrucoes.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Instruções
+    botaoLargura,
+    botaoAltura
+};
+DrawRectangleRec(botaoSair, corBotaoSair);
+DrawRectangleLines(botaoSair.x, botaoSair.y, botaoSair.width, botaoSair.height, corBorda);
+DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
+
+    
+    // Verificar cliques
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePos = GetMousePosition();
+        if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
+            telaInicial = false;
+        } else if (CheckCollisionPointRec(mousePos, botaoRanking)) {
+            // Código para abrir o ranking
+        } else if (CheckCollisionPointRec(mousePos, botaoSair)) {
+            CloseWindow();
+        }
+    }
+}
+
+ else if (!gameOver && !vitoria) {
             if (IsKeyDown(KEY_RIGHT)) player.posicao.x += player.speed;
             if (IsKeyDown(KEY_LEFT)) player.posicao.x -= player.speed;
             if (IsKeyDown(KEY_UP)) player.posicao.y -= player.speed;
