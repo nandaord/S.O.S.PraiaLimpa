@@ -31,11 +31,6 @@ typedef struct Tubarao {
 } Tubarao;
 
 typedef struct {
-    Vector2 posicao;
-    float raio;
-} ZonaSegura;
-
-typedef struct {
     Rectangle rect;
 } Barreira;
 
@@ -174,14 +169,22 @@ void moverTubaraoAleatoriamente(Tubarao* head) {
 bool verificaColisaoBarreira(Player player, Barreira barreira) {
     return CheckCollisionCircleRec(player.posicao, PLAYER_SIZE, barreira.rect);
 }
-
 void inicializarBarreiras(Barreira* barreiras, int* numBarreiras) {
-    *numBarreiras = 4;
+    *numBarreiras = 8;
     barreiras[0].rect = (Rectangle){ 200, 150, 10, 300 }; // Barreira vertical
     barreiras[1].rect = (Rectangle){ 400, 100, 300, 10 }; // Barreira horizontal
     barreiras[2].rect = (Rectangle){ 600, 300, 10, 200 }; // Barreira vertical
     barreiras[3].rect = (Rectangle){ 300, 400, 200, 10 }; // Barreira horizontal
+    barreiras[4].rect = (Rectangle){ 600, 200, 10, 300 };   // Vertical direita
+
+    // Pequenas barreiras para formar obstáculos no meio
+    barreiras[5].rect = (Rectangle){ 300, 300, 60, 10 };    // Horizontal pequena no meio
+    barreiras[6].rect = (Rectangle){ 500, 150, 10, 120 };   // Vertical pequena no canto superior direito
+
+    // Barreira na parte superior direita
+    barreiras[7].rect = (Rectangle){ 650, 50, 100, 10 };  
 }
+
 
 void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
     for (int i = 0; i < numBarreiras; i++) {
@@ -194,7 +197,6 @@ int main(void) {
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
-    ZonaSegura zonaSegura = { .posicao = {SCREEN_WIDTH - SAFE_ZONE_SIZE, SCREEN_HEIGHT - SAFE_ZONE_SIZE}, .raio = SAFE_ZONE_SIZE };
 
     inicializarTubarao(&head, 5, player);
 
@@ -222,18 +224,18 @@ int main(void) {
     DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 80, 2, (Color){70, 130, 180, 255}); // Texto azul
 
     // Definindo cores com base na paleta fornecida
-Color corBotaoIniciar = (Color){135, 206, 250, 255}; // Azul claro
-Color corBotaoRanking = (Color){100, 149, 237, 255}; // Azul intermediário (Cornflower Blue)
-Color corBotaoInstrucoes = (Color){70, 130, 180, 255}; // Azul médio (Steel Blue)
-Color corBotaoSair = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
-Color corTexto = (Color){255, 255, 255, 255}; // Branco
-Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
+    Color corBotaoIniciar = (Color){135, 206, 250, 255}; // Azul claro
+    Color corBotaoRanking = (Color){100, 149, 237, 255}; // Azul intermediário (Cornflower Blue)
+    Color corBotaoInstrucoes = (Color){70, 130, 180, 255}; // Azul médio (Steel Blue)
+    Color corBotaoSair = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
+    Color corTexto = (Color){255, 255, 255, 255}; // Branco
+    Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
 
+        // Definindo a altura e largura dos botões
     // Definindo a altura e largura dos botões
-// Definindo a altura e largura dos botões
-const int botaoLargura = 200;
-const int botaoAltura = 50;
-const int espacoEntreBotoes = 20; // Espaçamento entre os botões
+    const int botaoLargura = 200;
+    const int botaoAltura = 50;
+    const int espacoEntreBotoes = 20; // Espaçamento entre os botões
 
 // Botão Iniciar
 // Botão Iniciar
@@ -310,12 +312,6 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
                 }
             }
 
-            float distanciaZonaSegura = calcularDistancia(player.posicao, zonaSegura.posicao);
-            if (distanciaZonaSegura < SAFE_ZONE_THRESHOLD && !aumentoVelocidade) {
-                velocidadeAleatoriaTubarao(head, 1.0f);
-                aumentoVelocidade = true;
-            }
-
             // Incrementa o tempo desde o último tubarão adicionado
             tempoDesdeUltimoTubarao++;
 
@@ -346,10 +342,6 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
                 temp = temp->prox;
             }
 
-            if (distanciaZonaSegura < zonaSegura.raio) {
-                vitoria = true;
-            }
-
             // Desenha o jogador, tubarões e a área segura
             DrawCircleV(player.posicao, PLAYER_SIZE, BLUE);
             temp = head;
@@ -358,14 +350,11 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
                 temp = temp->prox;
             }
 
-            DrawCircleV(zonaSegura.posicao, zonaSegura.raio, GREEN);
-            DrawText("Área Segura", zonaSegura.posicao.x - 20, zonaSegura.posicao.y, 10, DARKGREEN);
-
             // Desenha as barreiras
             desenharBarreiras(barreiras, numBarreiras);
 
         } else {
-            DrawText(gameOver ? "Você foi pego pelos tubarões! Fim de jogo!" : "Parabéns! Você chegou à área segura!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
+            DrawText(gameOver ? "Você foi pego pelos tubarões! Fim de jogo!" : "Parabéns! Você coletou todos os lixos do mar!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
             
             // Botão de Reiniciar
             Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 40, 100, 40};
