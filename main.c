@@ -12,7 +12,10 @@
 #define COLLISION_RADIUS 20
 #define MIN_DISTANCE 150
 #define SAFE_ZONE_THRESHOLD 100  
-#define SEPARATION_DISTANCE 80   
+#define SEPARATION_DISTANCE 80
+
+int tempoDesdeUltimoTubarao = 0;      // Tempo em quadros desde o último tubarão adicionado
+const int intervaloTubarao = 2100; 
 
 typedef struct {
     Vector2 posicao;
@@ -21,6 +24,7 @@ typedef struct {
 
 typedef struct Tubarao {
     Vector2 posicao;
+    Vector2 direcao;
     float speed;
     struct Tubarao* prox;
     struct Tubarao* prev;
@@ -30,6 +34,10 @@ typedef struct {
     Vector2 posicao;
     float raio;
 } ZonaSegura;
+
+typedef struct {
+    Rectangle rect;
+} Barreira;
 
 float calcularDistancia(Vector2 a, Vector2 b) {
     return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
@@ -63,18 +71,19 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
         } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
 
         addTubarao(head, x, y, SHARK_SPEED);
+        
+        // Define uma direção inicial aleatória para o tubarão
+        (*head)->direcao = (Vector2){ ((float)GetRandomValue(-10, 10)) / 10.0f, ((float)GetRandomValue(-10, 10)) / 10.0f };
     }
 }
 
 void reiniciarJogo(Player* player, Tubarao** head, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade) {
-    // Reinicia a posição e estado do jogador
     player->posicao = (Vector2){100, 100};
     *gameOver = false;
     *vitoria = false;
     *aumentoVelocidade = false;
     *telaInicial = true;
 
-    // Limpa a lista de tubarões e reinicializa
     Tubarao* aux = *head;
     while (aux != NULL) {
         Tubarao* prox = aux->prox;
@@ -127,26 +136,57 @@ void velocidadeAleatoriaTubarao(Tubarao* head, float increment) {
     }
 }
 
-void moverTubarao(Tubarao* head, Player player) {
+void moverTubaraoAleatoriamente(Tubarao* head) {
     Tubarao* temp = head;
 
     while (temp != NULL) {
-        Vector2 direction = {
-            player.posicao.x - temp->posicao.x + ((float)GetRandomValue(-10, 10) / 100.0f),
-            player.posicao.y - temp->posicao.y + ((float)GetRandomValue(-10, 10) / 100.0f)
-        };
-        float magnitude = sqrtf(direction.x * direction.x + direction.y * direction.y);
+        // Altera a direção aleatoriamente a cada 60 quadros (aproximadamente 1 segundo)
+        if (GetRandomValue(0, 59) == 0) {
+            temp->direcao.x = ((float)GetRandomValue(-10, 10)) / 10.0f;
+            temp->direcao.y = ((float)GetRandomValue(-10, 10)) / 10.0f;
 
-        direction.x /= magnitude;
-        direction.y /= magnitude;
+            // Normaliza a nova direção
+            float magnitude = sqrtf(temp->direcao.x * temp->direcao.x + temp->direcao.y * temp->direcao.y);
+            temp->direcao.x /= magnitude;
+            temp->direcao.y /= magnitude;
+        }
 
-        temp->posicao.x += direction.x * temp->speed;
-        temp->posicao.y += direction.y * temp->speed;
+        // Atualiza a posição do tubarão com a direção atual
+        temp->posicao.x += temp->direcao.x * temp->speed;
+        temp->posicao.y += temp->direcao.y * temp->speed;
+
+        // Limita o movimento do tubarão às bordas da tela
+        if (temp->posicao.x < 0) temp->posicao.x = 0;
+        if (temp->posicao.x > SCREEN_WIDTH) temp->posicao.x = SCREEN_WIDTH;
+        if (temp->posicao.y < 0) temp->posicao.y = 0;
+        if (temp->posicao.y > SCREEN_HEIGHT) temp->posicao.y = SCREEN_HEIGHT;
 
         temp = temp->prox;
     }
 
+    // Aplica a força de separação para evitar que os tubarões fiquem muito próximos uns dos outros
     forcaSeparacaoTubaroes(head);
+}
+
+
+
+// Função para verificar colisões entre o jogador e barreiras
+bool verificaColisaoBarreira(Player player, Barreira barreira) {
+    return CheckCollisionCircleRec(player.posicao, PLAYER_SIZE, barreira.rect);
+}
+
+void inicializarBarreiras(Barreira* barreiras, int* numBarreiras) {
+    *numBarreiras = 4;
+    barreiras[0].rect = (Rectangle){ 200, 150, 10, 300 }; // Barreira vertical
+    barreiras[1].rect = (Rectangle){ 400, 100, 300, 10 }; // Barreira horizontal
+    barreiras[2].rect = (Rectangle){ 600, 300, 10, 200 }; // Barreira vertical
+    barreiras[3].rect = (Rectangle){ 300, 400, 200, 10 }; // Barreira horizontal
+}
+
+void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
+    for (int i = 0; i < numBarreiras; i++) {
+        DrawRectangleRec(barreiras[i].rect, DARKGRAY);
+    }
 }
 
 int main(void) {
@@ -158,6 +198,10 @@ int main(void) {
 
     inicializarTubarao(&head, 5, player);
 
+    Barreira barreiras[10];
+    int numBarreiras = 0;
+    inicializarBarreiras(barreiras, &numBarreiras);
+
     bool gameOver = false;
     bool vitoria = false;
     bool aumentoVelocidade = false;
@@ -165,7 +209,7 @@ int main(void) {
 
     SetTargetFPS(60);
 
-    while (!WindowShouldClose()) {
+        while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -204,13 +248,42 @@ int main(void) {
             if (IsKeyDown(KEY_UP)) player.posicao.y -= player.speed;
             if (IsKeyDown(KEY_DOWN)) player.posicao.y += player.speed;
 
+            // Verifica colisão com as barreiras
+            for (int i = 0; i < numBarreiras; i++) {
+                if (verificaColisaoBarreira(player, barreiras[i])) {
+                    // Se houver colisão, impede o movimento do jogador
+                    player.posicao.x -= (IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT)) * player.speed;
+                    player.posicao.y -= (IsKeyDown(KEY_DOWN) - IsKeyDown(KEY_UP)) * player.speed;
+                    break;
+                }
+            }
+
             float distanciaZonaSegura = calcularDistancia(player.posicao, zonaSegura.posicao);
             if (distanciaZonaSegura < SAFE_ZONE_THRESHOLD && !aumentoVelocidade) {
                 velocidadeAleatoriaTubarao(head, 1.0f);
                 aumentoVelocidade = true;
             }
 
-            moverTubarao(head, player);
+            // Incrementa o tempo desde o último tubarão adicionado
+            tempoDesdeUltimoTubarao++;
+
+            // Adiciona um novo tubarão a cada 35 segundos (2100 quadros)
+            if (tempoDesdeUltimoTubarao >= intervaloTubarao) {
+                float x, y;
+                do {
+                    x = GetRandomValue(0, SCREEN_WIDTH);
+                    y = GetRandomValue(0, SCREEN_HEIGHT);
+                } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
+
+                // Adiciona o novo tubarão e define uma direção inicial
+                addTubarao(&head, x, y, SHARK_SPEED);
+                head->direcao = (Vector2){ ((float)GetRandomValue(-10, 10)) / 10.0f, ((float)GetRandomValue(-10, 10)) / 10.0f };
+
+                // Reinicia o contador
+                tempoDesdeUltimoTubarao = 0;
+            }
+
+            moverTubaraoAleatoriamente(head);
 
             Tubarao* temp = head;
             while (temp != NULL) {
@@ -225,6 +298,7 @@ int main(void) {
                 vitoria = true;
             }
 
+            // Desenha o jogador, tubarões e a área segura
             DrawCircleV(player.posicao, PLAYER_SIZE, BLUE);
             temp = head;
             while (temp != NULL) {
@@ -234,6 +308,9 @@ int main(void) {
 
             DrawCircleV(zonaSegura.posicao, zonaSegura.raio, GREEN);
             DrawText("Área Segura", zonaSegura.posicao.x - 20, zonaSegura.posicao.y, 10, DARKGREEN);
+
+            // Desenha as barreiras
+            desenharBarreiras(barreiras, numBarreiras);
 
         } else {
             DrawText(gameOver ? "Você foi pego pelos tubarões! Fim de jogo!" : "Parabéns! Você chegou à área segura!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
@@ -252,7 +329,7 @@ int main(void) {
         EndDrawing();
     }
 
-    // Liberação dos recursos
+
     Tubarao* aux = head;
     while (aux != NULL) {
         Tubarao* prox = aux->prox;
