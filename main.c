@@ -14,6 +14,7 @@
 #define MIN_DISTANCE 150
 #define SAFE_ZONE_THRESHOLD 100  
 #define SEPARATION_DISTANCE 80
+#define NUM_ITEMS 5
 
 int tempoDesdeUltimoTubarao = 0;      // Tempo em quadros desde o último tubarão adicionado
 const int intervaloTubarao = 2100; 
@@ -35,8 +36,59 @@ typedef struct {
     Rectangle rect;
 } Barreira;
 
+typedef struct Lixo {
+    Vector2 posicao;
+    bool coletado;
+    struct Lixo* prox;
+} Lixo;
+
 float calcularDistancia(Vector2 a, Vector2 b) {
     return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+}
+
+// Função para inicializar itens em posições aleatórias e adicionar na lista encadeada
+void inicializarItens(Lixo** head) {
+    for (int i = 0; i < NUM_ITEMS; i++) {
+        Lixo* novoLixo = (Lixo*)malloc(sizeof(Lixo));
+        novoLixo->posicao = (Vector2){GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50)};
+        novoLixo->coletado = false;
+        novoLixo->prox = *head;
+        *head = novoLixo;
+    }
+}
+
+// Função para verificar se o jogador colidiu com algum item e marcar como coletado
+void verificarColetaItens(Player player, Lixo* head) {
+    Lixo* temp = head;
+    while (temp != NULL) {
+        if (!temp->coletado && calcularDistancia(player.posicao, temp->posicao) < PLAYER_SIZE) {
+            temp->coletado = true;
+        }
+        temp = temp->prox;
+    }
+}
+
+// Função para verificar se todos os itens foram coletados
+bool todosItensColetados(Lixo* head) {
+    Lixo* temp = head;
+    while (temp != NULL) {
+        if (!temp->coletado) {
+            return false;
+        }
+        temp = temp->prox;
+    }
+    return true;
+}
+
+// Função para liberar a memória alocada para os itens ao reiniciar o jogo
+void liberarItens(Lixo** head) {
+    Lixo* temp = *head;
+    while (temp != NULL) {
+        Lixo* prox = temp->prox;
+        free(temp);
+        temp = prox;
+    }
+    *head = NULL;
 }
 
 void addTubarao(Tubarao** head, float x, float y, float speed) {
@@ -73,7 +125,7 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
     }
 }
 
-void reiniciarJogo(Player* player, Tubarao** head, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade) {
+void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade) {
     player->posicao = (Vector2){100, 100};
     *gameOver = false;
     *vitoria = false;
@@ -88,6 +140,8 @@ void reiniciarJogo(Player* player, Tubarao** head, bool* gameOver, bool* vitoria
     }
     *head = NULL;
     inicializarTubarao(head, 5, *player);
+    liberarItens(lixo);
+    inicializarItens(lixo);
 }
 
 void forcaSeparacaoTubaroes(Tubarao* head) {
@@ -198,6 +252,9 @@ int main(void) {
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
+    Lixo *lixo = NULL;
+
+    inicializarItens(&lixo);
 
     inicializarTubarao(&head, 5, player);
 
@@ -344,6 +401,12 @@ else if (telaInstrucoes) {
             if (IsKeyDown(KEY_UP)) player.posicao.y -= player.speed;
             if (IsKeyDown(KEY_DOWN)) player.posicao.y += player.speed;
 
+            verificarColetaItens(player, lixo);
+
+            if (todosItensColetados(lixo)) {
+                vitoria = true;
+            }
+
             // Verifica colisão com as barreiras
             for (int i = 0; i < numBarreiras; i++) {
                 if (verificaColisaoBarreira(player, barreiras[i])) {
@@ -394,9 +457,16 @@ else if (telaInstrucoes) {
 
             // Desenha as barreiras
             desenharBarreiras(barreiras, numBarreiras);
+            Lixo* aux = lixo;
+            while (aux != NULL) {
+                if (!aux->coletado) {
+                    DrawCircleV(aux->posicao, 10, GREEN);
+                }
+                aux = aux->prox;
+            }
 
         } else {
-            DrawText(gameOver ? "Você foi pego pelos tubarões! Fim de jogo!" : "Parabéns! Você coletou todos os lixos do mar!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
+            DrawText(vitoria ? "Parabéns! Você coletou todos os lixos do mar!" : "Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
             
             // Botão de Reiniciar
             Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 40, 100, 40};
@@ -405,7 +475,7 @@ else if (telaInstrucoes) {
 
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade);
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade);
             }
         }
 
