@@ -269,7 +269,7 @@ int main(void) {
     bool telaRanking = false;
     bool telaInstrucoes = false;
 
-    Font myFont = LoadFont("C:/jogoAED/story_milky/Story Milky.ttf");
+    Font myFont = LoadFont("assets/fonts/Story Milky.ttf");
     SetTargetFPS(60);
 
         while (!WindowShouldClose()) {
