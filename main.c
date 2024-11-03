@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -208,7 +209,10 @@ int main(void) {
     bool vitoria = false;
     bool aumentoVelocidade = false;
     bool telaInicial = true;
+    bool telaRanking = false;
+    bool telaInstrucoes = false;
 
+    Font myFont = LoadFont("C:/jogoAED/story_milky/Story Milky.ttf");
     SetTargetFPS(60);
 
         while (!WindowShouldClose()) {
@@ -219,9 +223,8 @@ int main(void) {
     // Desenhar fundo
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255}); // Fundo azul claro
 
-    Font myFont = LoadFont("C:/jogoAED/story_milky/Story Milky.ttf");
-    Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 80, 2);
-    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 80, 2, (Color){70, 130, 180, 255}); // Texto azul
+    Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
+    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){70, 130, 180, 255}); // Texto azul
 
     // Definindo cores com base na paleta fornecida
     Color corBotaoIniciar = (Color){135, 206, 250, 255}; // Azul claro
@@ -289,12 +292,51 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
         if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
             telaInicial = false;
         } else if (CheckCollisionPointRec(mousePos, botaoRanking)) {
-            // Código para abrir o ranking
-        } else if (CheckCollisionPointRec(mousePos, botaoSair)) {
+             telaInicial = false;
+            telaRanking = true;
+        } else if (CheckCollisionPointRec(mousePos, botaoInstrucoes)) {
+            telaInicial = false;
+            telaInstrucoes = true;
+        }else if (CheckCollisionPointRec(mousePos, botaoSair)) {
             CloseWindow();
         }
     }
 }
+
+ else if (telaRanking) {
+
+        DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
+        Vector2 titleSize = MeasureTextEx(myFont, "Ranking de Melhores Jogadores:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
+        DrawTextEx(myFont, "Ranking de Melhores Jogadores:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+
+            // Botão de Voltar
+            Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
+            DrawRectangleRec(botaoVoltar, GRAY);
+            DrawText("Voltar", botaoVoltar.x + 10, botaoVoltar.y + 10, 20, WHITE);
+
+            // Verifica se o usuário clicou no botão de Voltar
+            if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                telaRanking = false;
+                telaInicial = true;
+            }
+        }
+
+else if (telaInstrucoes) {
+        DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
+        Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar:", 50, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
+        DrawTextEx(myFont, "Como Jogar:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 50, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+
+            // Botão de Voltar
+            Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
+            DrawRectangleRec(botaoVoltar, GRAY);
+            DrawText("Voltar", botaoVoltar.x + 10, botaoVoltar.y + 10, 20, WHITE);
+
+            // Verifica se o usuário clicou no botão de Voltar
+            if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                telaInstrucoes = false;
+                telaInicial = true;
+            }
+        }
 
  else if (!gameOver && !vitoria) {
             if (IsKeyDown(KEY_RIGHT)) player.posicao.x += player.speed;
@@ -369,7 +411,6 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
 
         EndDrawing();
     }
-
 
     Tubarao* aux = head;
     while (aux != NULL) {
