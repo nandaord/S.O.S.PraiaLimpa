@@ -304,6 +304,12 @@ void forcaSeparacaoTubaroes(Tubarao* head) {
         
         temp->posicao.x += separationForce.x * 1.5f;
         temp->posicao.y += separationForce.y * 1.5f;
+
+        // Limita o movimento do tubarão às bordas da tela
+        if (temp->posicao.x < 0) temp->posicao.x = 0;
+        if (temp->posicao.x > SCREEN_WIDTH - SHARK_SIZE) temp->posicao.x = SCREEN_WIDTH - SHARK_SIZE;
+        if (temp->posicao.y < 0) temp->posicao.y = 0;
+        if (temp->posicao.y > SCREEN_HEIGHT - SHARK_SIZE) temp->posicao.y = SCREEN_HEIGHT - SHARK_SIZE;
         
         temp = temp->prox;
     }
