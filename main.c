@@ -46,11 +46,23 @@ float calcularDistancia(Vector2 a, Vector2 b) {
     return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 }
 
+bool posicaoEmBarreira(Vector2 posicao, Barreira* barreiras, int numBarreiras) {
+    for (int i = 0; i < numBarreiras; i++) {
+        if (CheckCollisionPointRec(posicao, barreiras[i].rect)) {
+            return true; // A posição está dentro de uma barreira
+        }
+    }
+    return false;
+}
 // Função para inicializar itens em posições aleatórias e adicionar na lista encadeada
-void inicializarItens(Lixo** head) {
-    for (int i = 0; i < NUM_ITEMS; i++) {
+void inicializarItens(Lixo** head, Barreira* barreiras, int numBarreiras) {
+     for (int i = 0; i < NUM_ITEMS; i++) {
         Lixo* novoLixo = (Lixo*)malloc(sizeof(Lixo));
-        novoLixo->posicao = (Vector2){GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50)};
+        do {
+            // Gera uma posição aleatória
+            novoLixo->posicao = (Vector2){GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50)};
+        } while (posicaoEmBarreira(novoLixo->posicao, barreiras, numBarreiras)); // Repete enquanto a posição estiver em uma barreira
+        
         novoLixo->coletado = false;
         novoLixo->prox = *head;
         *head = novoLixo;
@@ -125,7 +137,7 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
     }
 }
 
-void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade) {
+void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade, Barreira* barreiras, int numBarreiras) {
     player->posicao = (Vector2){100, 100};
     *gameOver = false;
     *vitoria = false;
@@ -141,7 +153,7 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     *head = NULL;
     inicializarTubarao(head, 5, *player);
     liberarItens(lixo);
-    inicializarItens(lixo);
+    inicializarItens(lixo, barreiras, numBarreiras);
 }
 
 void forcaSeparacaoTubaroes(Tubarao* head) {
@@ -186,6 +198,19 @@ void velocidadeAleatoriaTubarao(Tubarao* head, float increment) {
     }
 }
 
+void moverJogador(Player* player) {
+    if (IsKeyDown(KEY_RIGHT)) player->posicao.x += player->speed;
+    if (IsKeyDown(KEY_LEFT)) player->posicao.x -= player->speed;
+    if (IsKeyDown(KEY_UP)) player->posicao.y -= player->speed;
+    if (IsKeyDown(KEY_DOWN)) player->posicao.y += player->speed;
+
+    // Limita o jogador dentro dos limites da tela
+    if (player->posicao.x < 0) player->posicao.x = 0;
+    if (player->posicao.x > SCREEN_WIDTH - PLAYER_SIZE) player->posicao.x = SCREEN_WIDTH - PLAYER_SIZE;
+    if (player->posicao.y < 0) player->posicao.y = 0;
+    if (player->posicao.y > SCREEN_HEIGHT - PLAYER_SIZE) player->posicao.y = SCREEN_HEIGHT - PLAYER_SIZE;
+}
+
 void moverTubaraoAleatoriamente(Tubarao* head) {
     Tubarao* temp = head;
 
@@ -207,9 +232,9 @@ void moverTubaraoAleatoriamente(Tubarao* head) {
 
         // Limita o movimento do tubarão às bordas da tela
         if (temp->posicao.x < 0) temp->posicao.x = 0;
-        if (temp->posicao.x > SCREEN_WIDTH) temp->posicao.x = SCREEN_WIDTH;
+        if (temp->posicao.x > SCREEN_WIDTH - SHARK_SIZE) temp->posicao.x = SCREEN_WIDTH - SHARK_SIZE;
         if (temp->posicao.y < 0) temp->posicao.y = 0;
-        if (temp->posicao.y > SCREEN_HEIGHT) temp->posicao.y = SCREEN_HEIGHT;
+        if (temp->posicao.y > SCREEN_HEIGHT - SHARK_SIZE) temp->posicao.y = SCREEN_HEIGHT - SHARK_SIZE;
 
         temp = temp->prox;
     }
@@ -249,18 +274,24 @@ void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
+    Texture2D background = LoadTexture("assets/resources/background.png");
+    if (background.id == 0) {
+        printf("Erro: Falha ao carregar a imagem de fundo.\n");
+        CloseWindow();
+        return -1;
+    }
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
     Lixo *lixo = NULL;
 
-    inicializarItens(&lixo);
 
     inicializarTubarao(&head, 5, player);
 
     Barreira barreiras[10];
     int numBarreiras = 0;
     inicializarBarreiras(barreiras, &numBarreiras);
+    inicializarItens(&lixo, barreiras, numBarreiras);
 
     bool gameOver = false;
     bool vitoria = false;
@@ -277,8 +308,8 @@ int main(void) {
         ClearBackground(RAYWHITE);
 
         if (telaInicial) {
-    // Desenhar fundo
-    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255}); // Fundo azul claro
+    DrawTexture(background, 0, 0, WHITE);
+    
 
     Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
     DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){70, 130, 180, 255}); // Texto azul
@@ -396,11 +427,7 @@ else if (telaInstrucoes) {
         }
 
  else if (!gameOver && !vitoria) {
-            if (IsKeyDown(KEY_RIGHT)) player.posicao.x += player.speed;
-            if (IsKeyDown(KEY_LEFT)) player.posicao.x -= player.speed;
-            if (IsKeyDown(KEY_UP)) player.posicao.y -= player.speed;
-            if (IsKeyDown(KEY_DOWN)) player.posicao.y += player.speed;
-
+            moverJogador(&player);
             verificarColetaItens(player, lixo);
 
             if (todosItensColetados(lixo)) {
@@ -475,7 +502,7 @@ else if (telaInstrucoes) {
 
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade);
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
             }
         }
 
@@ -488,7 +515,8 @@ else if (telaInstrucoes) {
         free(aux);
         aux = prox;
     }
-
+    
+    UnloadTexture(background);
     CloseWindow();
     return 0;
 }
