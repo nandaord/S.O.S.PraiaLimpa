@@ -637,13 +637,23 @@ else if (telaInstrucoes) {
             DrawText(vitoria ? "Parabéns! Você coletou todos os lixos do mar!" : "Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
             
             // Botão de Reiniciar
-            Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 40, 100, 40};
+           Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 140, SCREEN_HEIGHT / 2 + 40, 100, 40};
             DrawRectangleRec(botaoReiniciar, GREEN);
             DrawText("Reiniciar", botaoReiniciar.x + 10, botaoReiniciar.y + 10, 20, WHITE);
+
+            // Botão de Voltar para a Tela Inicial, posicionado mais à direita
+            Rectangle botaoVoltar = {SCREEN_WIDTH / 2 + 40, SCREEN_HEIGHT / 2 + 40, 100, 40};
+            DrawRectangleRec(botaoVoltar, BLUE);
+            DrawText("Voltar", botaoVoltar.x + 10, botaoVoltar.y + 10, 20, WHITE);
 
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
+                telaInicial = false;
+            }
+            else if (CheckCollisionPointRec(mousePos, botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
+                telaInicial = true;
             }
         }
 
