@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -10,14 +12,22 @@
 #define SAFE_ZONE_SIZE 50
 #define PLAYER_SPEED 3.0f
 #define SHARK_SPEED 2.0f
-#define COLLISION_RADIUS 20
+#define COLLISION_RADIUS 30
 #define MIN_DISTANCE 150
 #define SAFE_ZONE_THRESHOLD 100  
 #define SEPARATION_DISTANCE 80
 #define NUM_ITEMS 5
+#define MAX_POWERUPS 2
+#define TEMPO_IMUNIDADE 1000
+#define DISTANCIA_MINIMA_BARRREIRA 30 
 
-int tempoDesdeUltimoTubarao = 0;      // Tempo em quadros desde o último tubarão adicionado
-const int intervaloTubarao = 2100; 
+int tempoDesdeUltimoTubarao = 0;   
+const int intervaloTubarao = 2100;
+int powerUpsCapturados = 0; 
+int powerUpsGerados = 0;
+int contadorTempoPowerUp = 0;
+bool jogadorImune = false;
+int tempoImunidadeRestante = 0;   
 
 typedef struct {
     Vector2 posicao;
@@ -42,18 +52,120 @@ typedef struct Lixo {
     struct Lixo* prox;
 } Lixo;
 
+typedef struct PowerUp {
+    Vector2 posicao;
+    bool ativo;
+    struct PowerUp* prox;
+} PowerUp;
+
 float calcularDistancia(Vector2 a, Vector2 b) {
     return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 }
+void pushPowerUp(PowerUp** head, Vector2 posicao) {
+    PowerUp* novo = (PowerUp*)malloc(sizeof(PowerUp));
+    novo->posicao = posicao;
+    novo->ativo = true;
+    novo->prox = *head;
+    *head = novo;
+}
 
+void popPowerUp(PowerUp** head) {
+    if (*head != NULL) {
+        PowerUp* temp = *head;
+        *head = (*head)->prox;
+        free(temp);
+    }
+}
 bool posicaoEmBarreira(Vector2 posicao, Barreira* barreiras, int numBarreiras) {
     for (int i = 0; i < numBarreiras; i++) {
-        if (CheckCollisionPointRec(posicao, barreiras[i].rect)) {
-            return true; // A posição está dentro de uma barreira
+            // Verifica se está dentro da barreira
+            if (CheckCollisionPointRec(posicao, barreiras[i].rect)) {
+                return true;
+            }
+            // Verifica a distância mínima da barreira
+            float distanciaX = fabs(posicao.x - (barreiras[i].rect.x + barreiras[i].rect.width / 2));
+            float distanciaY = fabs(posicao.y - (barreiras[i].rect.y + barreiras[i].rect.height / 2));
+            if (distanciaX < DISTANCIA_MINIMA_BARRREIRA && distanciaY < DISTANCIA_MINIMA_BARRREIRA) {
+                return true;
+            }
+        }
+        return false;
+}
+
+bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
+  if (*headPowerUp != NULL) {
+        PowerUp* powerUpAtual = *headPowerUp;
+        if (powerUpAtual->ativo && calcularDistancia(player.posicao, powerUpAtual->posicao) < PLAYER_SIZE) {
+            popPowerUp(headPowerUp);  // Remove o power-up da pilha
+            powerUpsCapturados++;
+
+            // Ativa imunidade e define tempo restante
+            jogadorImune = true;
+            tempoImunidadeRestante = TEMPO_IMUNIDADE;
+
+            return true;  // Power-up coletado com sucesso
         }
     }
     return false;
 }
+
+void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
+    int intervaloPowerUp = 2000;
+
+    if (powerUpsGerados < MAX_POWERUPS  && contadorTempoPowerUp >= intervaloPowerUp) {  // Probabilidade baixa de aparecer
+        Vector2 posicao;
+         // Tenta gerar uma posição fora das barreiras
+        do {
+            posicao = (Vector2){ GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50) };
+        } while (posicaoEmBarreira(posicao, barreiras, numBarreiras));
+        
+        pushPowerUp(headPowerUp, posicao);
+        powerUpsGerados++;
+        contadorTempoPowerUp = 0;
+    }
+
+    contadorTempoPowerUp++;
+}
+
+void desenharPowerUps(PowerUp* head) {
+    PowerUp* temp = head;
+    while (temp != NULL) {
+        if (temp->ativo) {
+            DrawCircleV(temp->posicao, 10, YELLOW);  // Desenha o power-up em amarelo
+        }
+        temp = temp->prox;
+    }
+}
+
+void atualizarImunidade() {
+    if (jogadorImune) {
+        tempoImunidadeRestante--;
+        if (tempoImunidadeRestante <= 0) {
+            jogadorImune = false;
+        }
+    }
+}
+
+
+void ordenarLixosPorPosicaoY(Lixo** head) {
+    Lixo* atual = *head;
+    Lixo* prox;
+
+    while (atual != NULL) {
+        prox = atual->prox;
+        int j = 0;
+
+        while (prox != NULL && prox->posicao.y < atual->posicao.y && j > 0) {
+            Vector2 aux = atual->posicao;
+            atual->posicao = prox->posicao;
+            prox->posicao = aux;
+            prox = atual->prox;
+            j--;
+        }
+        atual = atual->prox;
+    }
+}
+
 // Função para inicializar itens em posições aleatórias e adicionar na lista encadeada
 void inicializarItens(Lixo** head, Barreira* barreiras, int numBarreiras) {
      for (int i = 0; i < NUM_ITEMS; i++) {
@@ -67,6 +179,11 @@ void inicializarItens(Lixo** head, Barreira* barreiras, int numBarreiras) {
         novoLixo->prox = *head;
         *head = novoLixo;
     }
+}
+
+void inicializarItensOrdenados(Lixo** head, Barreira* barreiras, int numBarreiras) {
+    inicializarItens(head, barreiras, numBarreiras);
+    ordenarLixosPorPosicaoY(head);
 }
 
 // Função para verificar se o jogador colidiu com algum item e marcar como coletado
@@ -144,6 +261,9 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     *aumentoVelocidade = false;
     *telaInicial = true;
 
+    tempoDesdeUltimoTubarao = 0;
+    powerUpsGerados = 0;
+
     Tubarao* aux = *head;
     while (aux != NULL) {
         Tubarao* prox = aux->prox;
@@ -151,6 +271,7 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
         aux = prox;
     }
     *head = NULL;
+
     inicializarTubarao(head, 5, *player);
     liberarItens(lixo);
     inicializarItens(lixo, barreiras, numBarreiras);
@@ -274,6 +395,7 @@ void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
+
     Texture2D background = LoadTexture("assets/resources/background.png");
     if (background.id == 0) {
         printf("Erro: Falha ao carregar a imagem de fundo.\n");
@@ -283,6 +405,7 @@ int main(void) {
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
+    PowerUp* headPowerUp = NULL;
     Lixo *lixo = NULL;
 
 
@@ -290,8 +413,10 @@ int main(void) {
 
     Barreira barreiras[10];
     int numBarreiras = 0;
+
     inicializarBarreiras(barreiras, &numBarreiras);
-    inicializarItens(&lixo, barreiras, numBarreiras);
+    inicializarItensOrdenados(&lixo, barreiras, numBarreiras);
+
 
     bool gameOver = false;
     bool vitoria = false;
@@ -299,6 +424,8 @@ int main(void) {
     bool telaInicial = true;
     bool telaRanking = false;
     bool telaInstrucoes = false;
+    bool mostrarMensagem = false;
+    int tempoMensagem = 0;
 
     Font myFont = LoadFont("assets/fonts/Story Milky.ttf");
     SetTargetFPS(60);
@@ -428,10 +555,25 @@ else if (telaInstrucoes) {
 
  else if (!gameOver && !vitoria) {
             moverJogador(&player);
+            gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
             verificarColetaItens(player, lixo);
 
             if (todosItensColetados(lixo)) {
                 vitoria = true;
+            }
+
+            if (coletarPowerUp(player, &headPowerUp, &head)) {
+                mostrarMensagem = true;
+                tempoMensagem = 300;  // Exibe a mensagem por 2 segundos
+            }
+
+            atualizarImunidade();
+            desenharPowerUps(headPowerUp);
+
+            if (mostrarMensagem) {
+                DrawText("Power-up capturado! Imunidade ativada por 5 segundos!", 100, 50, 20, RED);
+                tempoMensagem--;
+                if (tempoMensagem <= 0) mostrarMensagem = false;
             }
 
             // Verifica colisão com as barreiras
@@ -466,15 +608,15 @@ else if (telaInstrucoes) {
             moverTubaraoAleatoriamente(head);
 
             Tubarao* temp = head;
+            float distanciaParaColisao = (PLAYER_SIZE / 2.0f) + (SHARK_SIZE / 2.0f);
             while (temp != NULL) {
-                if (calcularDistancia(player.posicao, temp->posicao) < COLLISION_RADIUS) {
+                if (!jogadorImune && calcularDistancia(player.posicao, temp->posicao) < distanciaParaColisao) {
                     gameOver = true;
                     break;
                 }
                 temp = temp->prox;
             }
 
-            // Desenha o jogador, tubarões e a área segura
             DrawCircleV(player.posicao, PLAYER_SIZE, BLUE);
             temp = head;
             while (temp != NULL) {
@@ -482,7 +624,6 @@ else if (telaInstrucoes) {
                 temp = temp->prox;
             }
 
-            // Desenha as barreiras
             desenharBarreiras(barreiras, numBarreiras);
             Lixo* aux = lixo;
             while (aux != NULL) {
@@ -507,13 +648,6 @@ else if (telaInstrucoes) {
         }
 
         EndDrawing();
-    }
-
-    Tubarao* aux = head;
-    while (aux != NULL) {
-        Tubarao* prox = aux->prox;
-        free(aux);
-        aux = prox;
     }
     
     UnloadTexture(background);
