@@ -118,7 +118,7 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
 }
 
 void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
-    int intervaloPowerUp = 2000;
+    int intervaloPowerUp = 1000;
 
     if (powerUpsGerados < MAX_POWERUPS  && contadorTempoPowerUp >= intervaloPowerUp) {  // Probabilidade baixa de aparecer
         Vector2 posicao;
@@ -767,7 +767,7 @@ else if (telaInstrucoes) {
             desenharPowerUps(headPowerUp);
 
             if (mostrarMensagem) {
-                DrawText("Power-up capturado! Imunidade ativada por 5 segundos!", 100, 50, 20, RED);
+                DrawText("Power-up capturado! Imunidade ativada por 5 segundos!", 90, 50, 20, RED);
                 tempoMensagem--;
                 if (tempoMensagem <= 0) mostrarMensagem = false;
             }
