@@ -479,8 +479,9 @@ bool nomeExiste(const char *nome) {
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
-    Texture2D background = LoadTexture("assets/resources/background.png");
-
+    Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
+    Color transparente = (Color){255, 255, 255, 128};
+    
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
     PowerUp* headPowerUp = NULL;
@@ -518,7 +519,15 @@ int main(void) {
         ClearBackground(RAYWHITE);
 
         if (telaInicial) {
-    DrawTexture(background, 0, 0, WHITE);
+     DrawTexturePro(
+            background,
+            (Rectangle){0, 0, background.width, background.height},  // Região da textura
+            (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},  // Região de destino na tela
+            (Vector2){0, 0},                                         // Origem
+            0.0f,                                                    // Rotação
+            transparente                                             // Cor com transparência
+        );
+
     
 
     Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
