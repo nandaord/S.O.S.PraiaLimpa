@@ -58,6 +58,11 @@ typedef struct PowerUp {
     struct PowerUp* prox;
 } PowerUp;
 
+typedef struct{
+    char nome[20];
+    float tempo;
+}Jogador;
+
 float calcularDistancia(Vector2 a, Vector2 b) {
     return sqrtf((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 }
@@ -399,6 +404,60 @@ void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
     }
 }
 
+void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
+    Jogador jogadores[100];
+    int totalJogadores = 0;
+
+    FILE *arquivo = fopen64("ranking.txt" , "r");
+    if(arquivo != NULL){
+        while (fscanf(arquivo, "Nome: %s | Tempo: %f segundos\n", jogadores[totalJogadores].nome, &jogadores[totalJogadores].tempo) != EOF) {
+        totalJogadores++;
+    }
+    fclose(arquivo);
+}
+
+    strcpy(jogadores[totalJogadores].nome, nomeJogador);
+    jogadores[totalJogadores].tempo = tempoDecorrido;
+    totalJogadores++;
+
+    // Ordenar os jogadores pelo tempo
+    for (int i = 0; i < totalJogadores - 1; i++) {
+        for (int j = 0; j < totalJogadores - 1 - i; j++) {
+            if (jogadores[j].tempo > jogadores[j + 1].tempo) {
+                // Trocar jogadores
+                Jogador temp = jogadores[j];
+                jogadores[j] = jogadores[j + 1];
+                jogadores[j + 1] = temp;
+            }
+        }
+    }
+
+    arquivo = fopen("ranking.txt", "w");
+    if (arquivo != NULL) {
+        for (int i = 0; i < totalJogadores; i++) {
+            fprintf(arquivo, "Nome: %s | Tempo: %.2f segundos\n", jogadores[i].nome, jogadores[i].tempo);
+        }
+        fclose(arquivo);
+    }
+
+}
+
+bool nomeExiste(const char *nome) {
+    FILE *arquivo = fopen("ranking.txt", "r");
+    if (!arquivo) return false;
+
+    char linha[256];
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        // Verifica se a linha contém o nome do jogador
+        if (strstr(linha, nome) != NULL) {
+            fclose(arquivo);
+            return true; // Nome já existe
+        }
+    }
+    fclose(arquivo);
+    return false; // Nome não existe
+}
+
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
@@ -432,6 +491,12 @@ int main(void) {
     bool telaInstrucoes = false;
     bool mostrarMensagem = false;
     int tempoMensagem = 0;
+    bool telaNome = false;
+
+    char nomeJogador[20] = "";
+    int caractereAtual = 0;
+    float tempoInicial =0.0;
+    float tempoDecorrido = 0.0f;
 
     Font myFont = LoadFont("assets/fonts/Story Milky.ttf");
     SetTargetFPS(60);
@@ -491,7 +556,7 @@ Rectangle botaoInstrucoes = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoInstrucoes, corBotaoRanking);
+DrawRectangleRec(botaoInstrucoes, corBotaoInstrucoes);
 DrawRectangleLines(botaoInstrucoes.x, botaoInstrucoes.y, botaoInstrucoes.width, botaoInstrucoes.height, corBorda);
 DrawText("Instruções", botaoInstrucoes.x + 10, botaoInstrucoes.y + 10, 20, corTexto);
 
@@ -512,8 +577,9 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
         Vector2 mousePos = GetMousePosition();
         if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
             telaInicial = false;
+            telaNome = true;
         } else if (CheckCollisionPointRec(mousePos, botaoRanking)) {
-             telaInicial = false;
+            telaInicial = false;
             telaRanking = true;
         } else if (CheckCollisionPointRec(mousePos, botaoInstrucoes)) {
             telaInicial = false;
@@ -524,11 +590,115 @@ DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
     }
 }
 
+else if(telaNome) {
+
+    const int botaoLargura = 200;
+    const int botaoAltura = 50;
+
+    Color corBotaoNome = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
+    Color corTexto = (Color){255, 255, 255, 255}; // Branco
+    Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
+    Color corCaixaTexto = (Color){255, 255, 255, 255};
+
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
+
+    Vector2 titleSize = MeasureTextEx(myFont, "Insira seu Nome:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
+    
+    DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+
+    const int caixaTextoLargura = 300;
+    const int caixaTextoAltura = 40;
+    Rectangle caixaTexto = {
+        SCREEN_WIDTH / 2 - caixaTextoLargura / 2, 
+        200, 
+        caixaTextoLargura, 
+        caixaTextoAltura
+    };
+
+    DrawRectangleRec(caixaTexto,corCaixaTexto);
+    DrawRectangleLinesEx(caixaTexto,2,corBorda);
+
+    int key = GetCharPressed();
+    while(key > 0){
+        if((key>=32) && (key<=125) && (caractereAtual < 19)){
+            nomeJogador[caractereAtual] = (char)key;
+            caractereAtual++;
+            nomeJogador[caractereAtual] = '\0';
+        }
+        key = GetCharPressed();
+    }
+
+    if(IsKeyPressed(KEY_BACKSPACE) && (caractereAtual > 0)){
+        caractereAtual--;
+        nomeJogador[caractereAtual] = '\0';
+    }
+
+    DrawText(nomeJogador,caixaTexto.x + 5, caixaTexto.y + 10, 20, DARKGRAY);
+
+    Rectangle botaoNome = {
+    SCREEN_WIDTH / 2 - botaoLargura / 2, 
+    270, 
+    botaoLargura,
+    botaoAltura
+    };
+
+DrawRectangleRec(botaoNome, corBotaoNome);
+DrawRectangleLinesEx(botaoNome, 2, corBorda);
+DrawText("Jogar", botaoNome.x + 10, botaoNome.y + 10, 20, corTexto);
+ static bool exibirMensagemErro = false;
+
+    // Verifica se o botão "Jogar" pode ser clicado
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePos = GetMousePosition();
+        if (CheckCollisionPointRec(mousePos, botaoNome)) {
+            // Verifica se o nome é válido
+            bool nomeValido = (caractereAtual > 0 && !nomeExiste(nomeJogador));
+            if (nomeValido) {
+                telaNome = false;
+                telaInicial = false;
+                exibirMensagemErro = false; // Limpa a mensagem de erro se o nome for válido
+            } else {
+                exibirMensagemErro = true; // Define para exibir mensagem de erro
+            }
+        } 
+    }
+
+    // Exibir mensagem de erro se o nome não for válido
+    if (exibirMensagemErro) {
+        DrawText("Nome inválido ou já existente", SCREEN_WIDTH / 2 - 100, 330, 20, RED);
+    }
+}
+
  else if (telaRanking) {
 
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
-        Vector2 titleSize = MeasureTextEx(myFont, "Ranking de Melhores Jogadores:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
-        DrawTextEx(myFont, "Ranking de Melhores Jogadores:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+        Vector2 titleSize = MeasureTextEx(myFont, "Ranking - Top 10:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
+        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+
+        FILE *arquivo = fopen("ranking.txt", "r");
+char linha[100];
+char nomeJogador[20];
+float tempo;
+
+ if (arquivo != NULL) {
+        for (int i = 0; i < 10; i++) {
+            if (fgets(linha, sizeof(linha), arquivo) != NULL) {
+                // Tente extrair o nome e o tempo da linha
+                if (sscanf(linha, "Nome: %s | Tempo: %f segundos", nomeJogador, &tempo) == 2) {
+                    int yPosition = 150 + i * 40; // Espaçamento de 40 pixels entre as linhas
+                    char rankingText[100];
+                    sprintf(rankingText, "%dº: %s - %.2f segundos", i + 1, nomeJogador, tempo);
+                    DrawText(rankingText, (SCREEN_WIDTH - MeasureText(rankingText, 20)) / 2, yPosition, 20, (Color){0, 0, 0, 255}); // Texto preto
+                } else {
+                    break; // Se a linha não estiver no formato correto, saia do loop
+                }
+            } else {
+                break; // Se não houver mais linhas, saia do loop
+            }
+        }
+        fclose(arquivo);
+    }
+
 
             // Botão de Voltar
             Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
@@ -560,6 +730,10 @@ else if (telaInstrucoes) {
         }
 
  else if (!gameOver && !vitoria) {
+
+    tempoDecorrido = GetTime() - tempoInicial;
+    DrawText(TextFormat("Tempo decorrido: %.2f segundos", tempoDecorrido), 10, 10, 20, BLACK);
+
             moverJogador(&player);
             gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
             verificarColetaItens(player, lixo);
@@ -640,10 +814,30 @@ else if (telaInstrucoes) {
             }
 
         } else {
-            DrawText(vitoria ? "Parabéns! Você coletou todos os lixos do mar!" : "Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
+
+            tempoInicial = GetTime();
+            DrawText(vitoria ? ("Parabéns! Você coletou todos os lixos do mar!") : "Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
             
-            // Botão de Reiniciar
-           Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 140, SCREEN_HEIGHT / 2 + 40, 100, 40};
+            if (vitoria) {
+        
+            DrawText(TextFormat("Tempo final: %.2f segundos", tempoDecorrido), 250, 300, 20, DARKGRAY);
+
+            Rectangle botaoVerRanking = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 40, 150, 40};
+            DrawRectangleRec(botaoVerRanking,BLUE);
+            DrawText("Ver Ranking",botaoVerRanking.x + 10,botaoVerRanking.y +10,20,WHITE);
+
+            Vector2 mousePos = GetMousePosition();
+
+            if (CheckCollisionPointRec(mousePos, botaoVerRanking) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                adicionarRanking(nomeJogador, tempoDecorrido);
+                telaInicial = false;
+                telaRanking = true;
+            }
+            
+    
+            } else {
+            
+            Rectangle botaoReiniciar = {SCREEN_WIDTH / 2 - 140, SCREEN_HEIGHT / 2 + 40, 100, 40};
             DrawRectangleRec(botaoReiniciar, GREEN);
             DrawText("Reiniciar", botaoReiniciar.x + 10, botaoReiniciar.y + 10, 20, WHITE);
 
@@ -655,13 +849,14 @@ else if (telaInstrucoes) {
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
+                telaNome = true;
                 telaInicial = false;
             }
             else if (CheckCollisionPointRec(mousePos, botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
                 telaInicial = true;
             }
-        }
+        }}
 
         EndDrawing();
     }
