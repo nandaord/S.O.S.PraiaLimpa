@@ -28,6 +28,9 @@ int powerUpsGerados = 0;
 int contadorTempoPowerUp = 0;
 bool jogadorImune = false;
 int tempoImunidadeRestante = 0;   
+float tempoInicial = 0.0f;
+float tempoDecorrido = 0.0f;
+
 
 typedef struct {
     Vector2 posicao;
@@ -259,16 +262,30 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
     }
 }
 
-void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade, Barreira* barreiras, int numBarreiras) {
+void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade, Barreira* barreiras, int numBarreiras, char* nomeJogador, int* caractereAtual, bool* adicionouAoRanking) {
+    // Reiniciar posição do jogador
     player->posicao = (Vector2){100, 100};
     *gameOver = false;
     *vitoria = false;
     *aumentoVelocidade = false;
     *telaInicial = true;
+    *adicionouAoRanking = false;  // Permite salvar a pontuação apenas uma vez
 
+    // Resetar o tempo do jogo
+    tempoInicial = GetTime();
+    tempoDecorrido = 0.0f;
+
+    // Resetar os power-ups
     tempoDesdeUltimoTubarao = 0;
     powerUpsGerados = 0;
+    powerUpsCapturados = 0;
+    contadorTempoPowerUp = 0;
 
+    // Limpar o nome do jogador e permitir reentrada
+    nomeJogador[0] = '\0';
+    *caractereAtual = 0;
+
+    // Liberar tubarões e itens coletados
     Tubarao* aux = *head;
     while (aux != NULL) {
         Tubarao* prox = aux->prox;
@@ -281,6 +298,7 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     liberarItens(lixo);
     inicializarItens(lixo, barreiras, numBarreiras);
 }
+
 
 void forcaSeparacaoTubaroes(Tubarao* head) {
     Tubarao* temp = head;
@@ -462,11 +480,6 @@ int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
     Texture2D background = LoadTexture("assets/resources/background.png");
-    if (background.id == 0) {
-        printf("Erro: Falha ao carregar a imagem de fundo.\n");
-        CloseWindow();
-        return -1;
-    }
 
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
@@ -492,11 +505,10 @@ int main(void) {
     bool mostrarMensagem = false;
     int tempoMensagem = 0;
     bool telaNome = false;
+    bool adicionouAoRanking = false;
 
     char nomeJogador[20] = "";
     int caractereAtual = 0;
-    float tempoInicial =0.0;
-    float tempoDecorrido = 0.0f;
 
     Font myFont = LoadFont("assets/fonts/Story Milky.ttf");
     SetTargetFPS(60);
@@ -656,7 +668,11 @@ DrawText("Jogar", botaoNome.x + 10, botaoNome.y + 10, 20, corTexto);
             if (nomeValido) {
                 telaNome = false;
                 telaInicial = false;
-                exibirMensagemErro = false; // Limpa a mensagem de erro se o nome for válido
+                telaRanking = false;
+                exibirMensagemErro = false;  // Limpa a mensagem de erro
+
+                tempoInicial = GetTime();  // Reinicia o cronômetro do jogo
+                // Limpa a mensagem de erro se o nome for válido
             } else {
                 exibirMensagemErro = true; // Define para exibir mensagem de erro
             }
@@ -676,28 +692,28 @@ DrawText("Jogar", botaoNome.x + 10, botaoNome.y + 10, 20, corTexto);
         DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
 
         FILE *arquivo = fopen("ranking.txt", "r");
-char linha[100];
-char nomeJogador[20];
-float tempo;
+        char linha[100];
+        char nomeJogador[20];
+        float tempo;
 
- if (arquivo != NULL) {
-        for (int i = 0; i < 10; i++) {
-            if (fgets(linha, sizeof(linha), arquivo) != NULL) {
-                // Tente extrair o nome e o tempo da linha
-                if (sscanf(linha, "Nome: %s | Tempo: %f segundos", nomeJogador, &tempo) == 2) {
-                    int yPosition = 150 + i * 40; // Espaçamento de 40 pixels entre as linhas
-                    char rankingText[100];
-                    sprintf(rankingText, "%dº: %s - %.2f segundos", i + 1, nomeJogador, tempo);
-                    DrawText(rankingText, (SCREEN_WIDTH - MeasureText(rankingText, 20)) / 2, yPosition, 20, (Color){0, 0, 0, 255}); // Texto preto
-                } else {
-                    break; // Se a linha não estiver no formato correto, saia do loop
+        if (arquivo != NULL) {
+                for (int i = 0; i < 10; i++) {
+                    if (fgets(linha, sizeof(linha), arquivo) != NULL) {
+                        // Tente extrair o nome e o tempo da linha
+                        if (sscanf(linha, "Nome: %s | Tempo: %f segundos", nomeJogador, &tempo) == 2) {
+                            int yPosition = 150 + i * 40; // Espaçamento de 40 pixels entre as linhas
+                            char rankingText[100];
+                            sprintf(rankingText, "%dº: %s - %.2f segundos", i + 1, nomeJogador, tempo);
+                            DrawText(rankingText, (SCREEN_WIDTH - MeasureText(rankingText, 20)) / 2, yPosition, 20, (Color){0, 0, 0, 255}); // Texto preto
+                        } else {
+                            break; // Se a linha não estiver no formato correto, saia do loop
+                        }
+                    } else {
+                        break; // Se não houver mais linhas, saia do loop
+                    }
                 }
-            } else {
-                break; // Se não houver mais linhas, saia do loop
+                fclose(arquivo);
             }
-        }
-        fclose(arquivo);
-    }
 
 
             // Botão de Voltar
@@ -707,7 +723,7 @@ float tempo;
 
             // Verifica se o usuário clicou no botão de Voltar
             if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                telaRanking = false;
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
                 telaInicial = true;
             }
         }
@@ -818,7 +834,7 @@ else if (telaInstrucoes) {
             tempoInicial = GetTime();
             DrawText(vitoria ? ("Parabéns! Você coletou todos os lixos do mar!") : "Você foi pego pelos tubarões! Fim de jogo!", 150, SCREEN_HEIGHT / 2 - 20, 20, RED);
             
-            if (vitoria) {
+            if (vitoria && !adicionouAoRanking) {
         
             DrawText(TextFormat("Tempo final: %.2f segundos", tempoDecorrido), 250, 300, 20, DARKGRAY);
 
@@ -830,6 +846,7 @@ else if (telaInstrucoes) {
 
             if (CheckCollisionPointRec(mousePos, botaoVerRanking) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 adicionarRanking(nomeJogador, tempoDecorrido);
+                adicionouAoRanking = true;
                 telaInicial = false;
                 telaRanking = true;
             }
@@ -848,12 +865,13 @@ else if (telaInstrucoes) {
 
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking);
                 telaNome = true;
                 telaInicial = false;
             }
+            
             else if (CheckCollisionPointRec(mousePos, botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras);
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
                 telaInicial = true;
             }
         }}
