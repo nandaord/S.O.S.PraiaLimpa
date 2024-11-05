@@ -719,6 +719,23 @@ DrawTextEx(myFont2, texto, textPos, fontSize, spacing, corTexto);
     if (exibirMensagemErro) {
         DrawText("Nome inválido ou já existente", SCREEN_WIDTH / 2 - 100, 330, 20, RED);
     }
+
+    // Exibir mensagem de erro se o nome não for válido
+    if (exibirMensagemErro) {
+        const char *mensagemErro = "Nome usado ou vazio. Tente outro!";
+        float fontSizeErro = 20; // Tamanho da fonte
+        float spacingErro = 2;   
+
+        Vector2 textSizeErro = MeasureTextEx(myFont2, mensagemErro, fontSizeErro, spacingErro);
+
+        Vector2 textPosErro = (Vector2){
+        SCREEN_WIDTH / 2 - textSizeErro.x / 2,
+        330 // Y fixo
+        };
+        DrawTextEx(myFont2, mensagemErro, textPosErro, fontSizeErro, spacingErro, RED);
+
+}
+
 }
 
  else if (telaRanking) {
