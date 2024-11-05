@@ -479,8 +479,9 @@ bool nomeExiste(const char *nome) {
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
-    Texture2D background = LoadTexture("assets/resources/background.png");
-
+    Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
+    Color transparente = (Color){255, 255, 255, 128};
+    
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
     Tubarao* head = NULL;
     PowerUp* headPowerUp = NULL;
@@ -511,6 +512,7 @@ int main(void) {
     int caractereAtual = 0;
 
     Font myFont = LoadFont("assets/fonts/Story Milky.ttf");
+    Font myFont2 = LoadFont("assets/fonts/Nexa-Heavy.ttf");
     SetTargetFPS(60);
 
         while (!WindowShouldClose()) {
@@ -518,19 +520,25 @@ int main(void) {
         ClearBackground(RAYWHITE);
 
         if (telaInicial) {
-    DrawTexture(background, 0, 0, WHITE);
+     DrawTexturePro(
+            background,
+            (Rectangle){0, 0, background.width, background.height},  // Região da textura
+            (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},  // Região de destino na tela
+            (Vector2){0, 0},                                         // Origem
+            0.0f,                                                    // Rotação
+            transparente                                             // Cor com transparência
+        );
+
     
 
     Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
-    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){70, 130, 180, 255}); // Texto azul
+    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 152}, 70, 2, (Color){0, 0, 0, 200}); // Sombra preta
+    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){11, 143, 170,255}); // Texto azul
 
     // Definindo cores com base na paleta fornecida
-    Color corBotaoIniciar = (Color){135, 206, 250, 255}; // Azul claro
-    Color corBotaoRanking = (Color){100, 149, 237, 255}; // Azul intermediário (Cornflower Blue)
-    Color corBotaoInstrucoes = (Color){70, 130, 180, 255}; // Azul médio (Steel Blue)
-    Color corBotaoSair = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
+    Color corBotao = (Color){28, 194, 215, 200}; // Azul claro
     Color corTexto = (Color){255, 255, 255, 255}; // Branco
-    Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
+    Color corBorda = (Color){28, 194, 215, 255};
 
         // Definindo a altura e largura dos botões
     // Definindo a altura e largura dos botões
@@ -539,16 +547,19 @@ int main(void) {
     const int espacoEntreBotoes = 20; // Espaçamento entre os botões
 
 // Botão Iniciar
-// Botão Iniciar
 Rectangle botaoIniciar = {
     SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
     SCREEN_HEIGHT / 2 - 30, // Mover o botão para cima
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoIniciar, corBotaoIniciar);
-DrawRectangleLines(botaoIniciar.x, botaoIniciar.y, botaoIniciar.width, botaoIniciar.height, corBorda);
-DrawText("Iniciar", botaoIniciar.x + 10, botaoIniciar.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoIniciar, 0.3f, 16, corBotao);
+DrawRectangleRoundedLines(botaoIniciar, 0.3f, 16, 2,  corBorda);
+const char *textoBotaoIniciar = "Iniciar";
+Vector2 textSizeIniciar = MeasureTextEx(myFont2, textoBotaoIniciar, 30, 2);
+DrawTextEx(myFont2, textoBotaoIniciar,
+           (Vector2){ botaoIniciar.x + (botaoIniciar.width - textSizeIniciar.x) / 2, botaoIniciar.y + (botaoIniciar.height - textSizeIniciar.y) / 2 },
+           30, 2, corTexto);
 
 // Botão Ranking
 Rectangle botaoRanking = {
@@ -557,9 +568,13 @@ Rectangle botaoRanking = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoRanking, corBotaoRanking);
-DrawRectangleLines(botaoRanking.x, botaoRanking.y, botaoRanking.width, botaoRanking.height, corBorda);
-DrawText("Ranking", botaoRanking.x + 10, botaoRanking.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoRanking, 0.3f, 16, corBotao);
+DrawRectangleRoundedLines(botaoRanking, 0.3f, 16, 2, corBorda);
+const char *textoBotaoRanking = "Ranking";
+Vector2 textSizeRanking = MeasureTextEx(myFont2, textoBotaoRanking, 30, 2);
+DrawTextEx(myFont2, textoBotaoRanking,
+           (Vector2){ botaoRanking.x + (botaoRanking.width - textSizeRanking.x) / 2, botaoRanking.y + (botaoRanking.height - textSizeRanking.y) / 2 },
+           30, 2, corTexto);
 
 // Botão Instruções
 Rectangle botaoInstrucoes = {
@@ -568,9 +583,13 @@ Rectangle botaoInstrucoes = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoInstrucoes, corBotaoInstrucoes);
-DrawRectangleLines(botaoInstrucoes.x, botaoInstrucoes.y, botaoInstrucoes.width, botaoInstrucoes.height, corBorda);
-DrawText("Instruções", botaoInstrucoes.x + 10, botaoInstrucoes.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoInstrucoes, 0.3f, 16, corBotao);
+DrawRectangleRoundedLines(botaoInstrucoes, 0.3f, 16, 2, corBorda);
+const char *textoBotaoInstrucoes = "Como Jogar";
+Vector2 textSizeInstrucoes = MeasureTextEx(myFont2, textoBotaoInstrucoes, 30, 2);
+DrawTextEx(myFont2, textoBotaoInstrucoes,
+           (Vector2){ botaoInstrucoes.x + (botaoInstrucoes.width - textSizeInstrucoes.x) / 2, botaoInstrucoes.y + (botaoInstrucoes.height - textSizeInstrucoes.y) / 2 },
+           30, 2, corTexto);
 
 // Botão Sair
 Rectangle botaoSair = {
@@ -579,9 +598,13 @@ Rectangle botaoSair = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoSair, corBotaoSair);
-DrawRectangleLines(botaoSair.x, botaoSair.y, botaoSair.width, botaoSair.height, corBorda);
-DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoSair, 0.3f, 16, corBotao);
+DrawRectangleRoundedLines(botaoSair, 0.3f, 16, 2, corBorda);
+const char *textoBotaoSair = "Sair";
+Vector2 textSizeSair = MeasureTextEx(myFont2, textoBotaoSair, 30, 2);
+DrawTextEx(myFont2, textoBotaoSair,
+           (Vector2){ botaoSair.x + (botaoSair.width - textSizeSair.x) / 2, botaoSair.y + (botaoSair.height - textSizeSair.y) / 2 },
+           30, 2, corTexto);
 
     
     // Verificar cliques
@@ -607,16 +630,17 @@ else if(telaNome) {
     const int botaoLargura = 200;
     const int botaoAltura = 50;
 
-    Color corBotaoNome = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
+    Color corBotaoNome = (Color){173, 216, 230, 230}; // Azul de mar (Dodger Blue)
     Color corTexto = (Color){255, 255, 255, 255}; // Branco
-    Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
+    Color corBorda = (Color){70, 130, 180, 255}; // Azul escuro (Dark Blue)
     Color corCaixaTexto = (Color){255, 255, 255, 255};
 
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
 
     Vector2 titleSize = MeasureTextEx(myFont, "Insira seu Nome:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
     
-    DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+    DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 102}, 40, 1, (Color){0, 0, 0, 145}); // Texto azul, fonte menor
+    DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 200}); // Texto azul, fonte menor
 
     const int caixaTextoLargura = 300;
     const int caixaTextoAltura = 40;
@@ -654,9 +678,21 @@ else if(telaNome) {
     botaoAltura
     };
 
-DrawRectangleRec(botaoNome, corBotaoNome);
-DrawRectangleLinesEx(botaoNome, 2, corBorda);
-DrawText("Jogar", botaoNome.x + 10, botaoNome.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoNome, 0.3f, 10, (Color){80, 155, 157, 100});
+DrawRectangleRoundedLines(botaoNome, 0.3f , 16 , 2 , (Color){80, 155, 157, 200});
+const char *texto = "Jogar";
+float fontSize = 30;      // Tamanho da fonte
+float spacing = 2;        // Espaçamento entre letras
+
+Vector2 textSize = MeasureTextEx(myFont2, texto, fontSize, spacing);
+
+Vector2 textPos = (Vector2){
+    botaoNome.x + (botaoNome.width - textSize.x) / 2,
+    botaoNome.y + (botaoNome.height - textSize.y) / 2
+};
+
+DrawTextEx(myFont2, texto, textPos, fontSize, spacing, corTexto);
+
  static bool exibirMensagemErro = false;
 
     // Verifica se o botão "Jogar" pode ser clicado
@@ -683,49 +719,87 @@ DrawText("Jogar", botaoNome.x + 10, botaoNome.y + 10, 20, corTexto);
     if (exibirMensagemErro) {
         DrawText("Nome inválido ou já existente", SCREEN_WIDTH / 2 - 100, 330, 20, RED);
     }
+
+    // Exibir mensagem de erro se o nome não for válido
+    if (exibirMensagemErro) {
+        const char *mensagemErro = "Nome usado ou vazio. Tente outro!";
+        float fontSizeErro = 20; // Tamanho da fonte
+        float spacingErro = 2;   
+
+        Vector2 textSizeErro = MeasureTextEx(myFont2, mensagemErro, fontSizeErro, spacingErro);
+
+        Vector2 textPosErro = (Vector2){
+        SCREEN_WIDTH / 2 - textSizeErro.x / 2,
+        330 // Y fixo
+        };
+        DrawTextEx(myFont2, mensagemErro, textPosErro, fontSizeErro, spacingErro, RED);
+
+}
+
 }
 
  else if (telaRanking) {
 
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
         Vector2 titleSize = MeasureTextEx(myFont, "Ranking - Top 10:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
-        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2+2, 70}, 40, 1, (Color){0, 0, 0, 145}); // Texto azul, fonte menor
+        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 68}, 40, 1, (Color){70, 130, 180, 200}); // Texto azul, fonte menor
 
         FILE *arquivo = fopen("ranking.txt", "r");
         char linha[100];
         char nomeJogador[20];
         float tempo;
 
-        if (arquivo != NULL) {
-                for (int i = 0; i < 10; i++) {
-                    if (fgets(linha, sizeof(linha), arquivo) != NULL) {
-                        // Tente extrair o nome e o tempo da linha
-                        if (sscanf(linha, "Nome: %s | Tempo: %f segundos", nomeJogador, &tempo) == 2) {
-                            int yPosition = 150 + i * 40; // Espaçamento de 40 pixels entre as linhas
-                            char rankingText[100];
-                            sprintf(rankingText, "%dº: %s - %.2f segundos", i + 1, nomeJogador, tempo);
-                            DrawText(rankingText, (SCREEN_WIDTH - MeasureText(rankingText, 20)) / 2, yPosition, 20, (Color){0, 0, 0, 255}); // Texto preto
-                        } else {
-                            break; // Se a linha não estiver no formato correto, saia do loop
-                        }
-                    } else {
-                        break; // Se não houver mais linhas, saia do loop
-                    }
-                }
-                fclose(arquivo);
+      if (arquivo != NULL) {
+    for (int i = 0; i < 10; i++) {
+        if (fgets(linha, sizeof(linha), arquivo) != NULL) {
+            // Tente extrair o nome e o tempo da linha
+            if (sscanf(linha, "Nome: %s | Tempo: %f segundos", nomeJogador, &tempo) == 2) {
+                int yPosition = 130 + i * 40; // Ajustado para começar mais acima
+                char rankingText[100];
+                sprintf(rankingText, "%d. %s - %.2f segundos", i + 1, nomeJogador, tempo);
+                
+                Vector2 textSize = MeasureTextEx(myFont2, rankingText, 20, 0); // Medir o texto com a fonte 'myfont2'
+                Vector2 position = {(SCREEN_WIDTH - textSize.x) / 2, (float)yPosition}; // Criar um Vector2 para a posição
+                
+                DrawTextEx(myFont2, rankingText, position, 20, 0, (Color){0, 0, 0, 200}); // Texto preto
+            } else {
+                break; // Se a linha não estiver no formato correto, saia do loop
             }
+        } else {
+            break; // Se não houver mais linhas, saia do loop
+        }
+    }
+    fclose(arquivo);
+}
 
+Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-            // Botão de Voltar
-            Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
-            DrawRectangleRec(botaoVoltar, GRAY);
-            DrawText("Voltar", botaoVoltar.x + 10, botaoVoltar.y + 10, 20, WHITE);
+// Desenhar o botão arredondado
+DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
+DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
 
-            // Verifica se o usuário clicou no botão de Voltar
-            if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
-                telaInicial = true;
-            }
+// Texto do botão
+const char *textoVoltar = "Voltar";
+float fontSizeVoltar = 20; // Tamanho da fonte
+float spacingVoltar = 2;    // Espaçamento entre letras
+
+Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
+
+Vector2 textPosVoltar = (Vector2){
+    botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
+    botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
+};
+
+// Desenhar o texto do botão "Voltar"
+DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
+
+// Verifica se o usuário clicou no botão de Voltar
+if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+    telaInicial = true;
+}
+
         }
 
 else if (telaInstrucoes) {
