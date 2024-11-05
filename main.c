@@ -531,13 +531,13 @@ int main(void) {
     
 
     Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
-    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){70, 130, 180, 255}); // Texto azul
+    DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){0, 0, 139, 255}); // Texto azul
 
     // Definindo cores com base na paleta fornecida
-    Color corBotaoIniciar = (Color){135, 206, 250, 255}; // Azul claro
-    Color corBotaoRanking = (Color){100, 149, 237, 255}; // Azul intermediário (Cornflower Blue)
-    Color corBotaoInstrucoes = (Color){70, 130, 180, 255}; // Azul médio (Steel Blue)
-    Color corBotaoSair = (Color){30, 144, 255, 255}; // Azul de mar (Dodger Blue)
+    Color corBotaoIniciar = (Color){173, 216, 230, 255}; // Azul claro
+    Color corBotaoRanking = (Color){135, 206, 235, 255}; // Azul intermediário (Cornflower Blue)
+    Color corBotaoInstrucoes = (Color){0, 191, 255, 255}; // Azul médio (Steel Blue)
+    Color corBotaoSair = (Color){70, 130, 180, 255}; // Azul de mar (Dodger Blue)
     Color corTexto = (Color){255, 255, 255, 255}; // Branco
     Color corBorda = (Color){0, 0, 139, 255}; // Azul escuro (Dark Blue)
 
@@ -548,16 +548,19 @@ int main(void) {
     const int espacoEntreBotoes = 20; // Espaçamento entre os botões
 
 // Botão Iniciar
-// Botão Iniciar
 Rectangle botaoIniciar = {
     SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
     SCREEN_HEIGHT / 2 - 30, // Mover o botão para cima
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoIniciar, corBotaoIniciar);
-DrawRectangleLines(botaoIniciar.x, botaoIniciar.y, botaoIniciar.width, botaoIniciar.height, corBorda);
-DrawText("Iniciar", botaoIniciar.x + 10, botaoIniciar.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoIniciar, 0.3f, 16, corBotaoIniciar);
+DrawRectangleRoundedLines(botaoIniciar, 0.3f, 16, 2, corBorda);
+const char *textoBotaoIniciar = "Iniciar";
+Vector2 textSizeIniciar = MeasureTextEx(myFont, textoBotaoIniciar, 20, 2);
+DrawTextEx(myFont, textoBotaoIniciar,
+           (Vector2){ botaoIniciar.x + (botaoIniciar.width - textSizeIniciar.x) / 2, botaoIniciar.y + (botaoIniciar.height - textSizeIniciar.y) / 2 },
+           20, 2, corTexto);
 
 // Botão Ranking
 Rectangle botaoRanking = {
@@ -566,9 +569,13 @@ Rectangle botaoRanking = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoRanking, corBotaoRanking);
-DrawRectangleLines(botaoRanking.x, botaoRanking.y, botaoRanking.width, botaoRanking.height, corBorda);
-DrawText("Ranking", botaoRanking.x + 10, botaoRanking.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoRanking, 0.3f, 16, corBotaoRanking);
+DrawRectangleRoundedLines(botaoRanking, 0.3f, 16, 2, corBorda);
+const char *textoBotaoRanking = "Ranking";
+Vector2 textSizeRanking = MeasureTextEx(myFont, textoBotaoRanking, 20, 2);
+DrawTextEx(myFont, textoBotaoRanking,
+           (Vector2){ botaoRanking.x + (botaoRanking.width - textSizeRanking.x) / 2, botaoRanking.y + (botaoRanking.height - textSizeRanking.y) / 2 },
+           20, 2, corTexto);
 
 // Botão Instruções
 Rectangle botaoInstrucoes = {
@@ -577,9 +584,13 @@ Rectangle botaoInstrucoes = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoInstrucoes, corBotaoInstrucoes);
-DrawRectangleLines(botaoInstrucoes.x, botaoInstrucoes.y, botaoInstrucoes.width, botaoInstrucoes.height, corBorda);
-DrawText("Instruções", botaoInstrucoes.x + 10, botaoInstrucoes.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoInstrucoes, 0.3f, 16, corBotaoInstrucoes);
+DrawRectangleRoundedLines(botaoInstrucoes, 0.3f, 16, 2, corBorda);
+const char *textoBotaoInstrucoes = "Como Jogar";
+Vector2 textSizeInstrucoes = MeasureTextEx(myFont, textoBotaoInstrucoes, 20, 2);
+DrawTextEx(myFont, textoBotaoInstrucoes,
+           (Vector2){ botaoInstrucoes.x + (botaoInstrucoes.width - textSizeInstrucoes.x) / 2, botaoInstrucoes.y + (botaoInstrucoes.height - textSizeInstrucoes.y) / 2 },
+           20, 2, corTexto);
 
 // Botão Sair
 Rectangle botaoSair = {
@@ -588,9 +599,13 @@ Rectangle botaoSair = {
     botaoLargura,
     botaoAltura
 };
-DrawRectangleRec(botaoSair, corBotaoSair);
-DrawRectangleLines(botaoSair.x, botaoSair.y, botaoSair.width, botaoSair.height, corBorda);
-DrawText("Sair", botaoSair.x + 10, botaoSair.y + 10, 20, corTexto);
+DrawRectangleRounded(botaoSair, 0.3f, 16, corBotaoSair);
+DrawRectangleRoundedLines(botaoSair, 0.3f, 16, 2, corBorda);
+const char *textoBotaoSair = "Sair";
+Vector2 textSizeSair = MeasureTextEx(myFont, textoBotaoSair, 20, 2);
+DrawTextEx(myFont, textoBotaoSair,
+           (Vector2){ botaoSair.x + (botaoSair.width - textSizeSair.x) / 2, botaoSair.y + (botaoSair.height - textSizeSair.y) / 2 },
+           20, 2, corTexto);
 
     
     // Verificar cliques
