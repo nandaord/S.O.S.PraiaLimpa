@@ -980,8 +980,8 @@ DrawTextEx(myFont2, texto, textPos2, fontSize, spacing, WHITE);
             DrawRectangleRounded(botaoReiniciar, 0.3f, 10, (Color){80, 155, 157, 100});
             DrawRectangleRoundedLines(botaoReiniciar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
 
-            DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){30, 100, 120, 100});
-            DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){30, 100, 120, 200});
+            DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){40, 120, 160, 100});  // Cor mais escura e azulado para o botão
+DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});  // Cor mais escura e azulado para a borda
 
             const char *textoReiniciar = "Reiniciar";
             const char *textoVoltar = "Voltar";
