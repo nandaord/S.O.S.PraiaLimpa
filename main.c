@@ -811,41 +811,66 @@ else if (telaInstrucoes) {
     Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar:", 40, 1);
     DrawTextEx(myFont, "Como Jogar:\n\n\n", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 50}, 40, 1, (Color){70, 130, 180, 255});
     
-    // Primeira instrução
-    DrawTextEx(myFont, "1 - Use as setas para mover o personagem", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "entre as barreiras de corais", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
+ // Calcula a largura do texto
+Vector2 line1Size = MeasureTextEx(myFont2, "1 - Use as setas para mover o personagem", fontSize, 1);
+Vector2 line2Size = MeasureTextEx(myFont2, "entre as barreiras de corais", fontSize, 1);
+Vector2 line3Size = MeasureTextEx(myFont2, "2 - Seu objetivo sera coletar todos os lixos do mar", fontSize, 1);
+Vector2 line4Size = MeasureTextEx(myFont2, "sem ser capturado pelos tubaroes", fontSize, 1);
+Vector2 line5Size = MeasureTextEx(myFont2, "3 - Powerups podem aparecer a qualquer momento,", fontSize, 1);
+Vector2 line6Size = MeasureTextEx(myFont2, "se coleta-lo voce ganha imortalidade por 5 segundos", fontSize, 1);
+Vector2 line7Size = MeasureTextEx(myFont2, "4 - Se voce coletar todos os lixos, vencera", fontSize, 1);
+Vector2 line8Size = MeasureTextEx(myFont2, "e podera consultar o ranking dos jogadores", fontSize, 1);
 
-    // Segunda instrução
-    DrawTextEx(myFont, "2 - Seu objetivo sera coletar todos os lixos do mar", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 2 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "sem ser capturado pelos tubaroes", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 2 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
+// Primeira instrução
+DrawTextEx(myFont2, "1 - Use as setas para mover o personagem", 
+           (Vector2){(SCREEN_WIDTH - line1Size.x) / 2, startY}, fontSize, 1, (Color){0, 0, 0, 255});
+DrawTextEx(myFont2, "entre as barreiras de corais", 
+           (Vector2){(SCREEN_WIDTH - line2Size.x) / 2, startY + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
 
-    // Terceira instrução
-    DrawTextEx(myFont, "3 - Powerups podem aparecer a qualquer momento,", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 4 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "se coleta-lo voce ganha imortalidade por 5 segundos", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 4 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
+// Segunda instrução
+DrawTextEx(myFont2, "2 - Seu objetivo sera coletar todos os lixos do mar", 
+           (Vector2){(SCREEN_WIDTH - line3Size.x) / 2, startY + 2 * lineSpacing}, fontSize, 1, (Color){0, 0, 0, 255});
+DrawTextEx(myFont2, "sem ser capturado pelos tubaroes", 
+           (Vector2){(SCREEN_WIDTH - line4Size.x) / 2, startY + 2 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
 
-    // Quarta instrução
-    DrawTextEx(myFont, "4 - Se voce coletar todos os lixos, vencera", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 6 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "e podera consultar o ranking dos jogadores", 
-               (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 6 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
-            
+// Terceira instrução
+DrawTextEx(myFont2, "3 - Powerups podem aparecer a qualquer momento,", 
+           (Vector2){(SCREEN_WIDTH - line5Size.x) / 2, startY + 4 * lineSpacing}, fontSize, 1, (Color){0, 0, 0, 255});
+DrawTextEx(myFont2, "se coleta-lo voce ganha imortalidade por 5 segundos", 
+           (Vector2){(SCREEN_WIDTH - line6Size.x) / 2, startY + 4 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
+
+// Quarta instrução
+DrawTextEx(myFont2, "4 - Se voce coletar todos os lixos, vencera", 
+           (Vector2){(SCREEN_WIDTH - line7Size.x) / 2, startY + 6 * lineSpacing}, fontSize, 1, (Color){0, 0, 0, 255});
+DrawTextEx(myFont2, "e podera consultar o ranking dos jogadores", 
+           (Vector2){(SCREEN_WIDTH - line8Size.x) / 2, startY + 6 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
             // teste teste teste
-            // Botão de Voltar
-            Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
-            DrawRectangleRec(botaoVoltar, GRAY);
-            DrawText("Voltar", botaoVoltar.x + 10, botaoVoltar.y + 10, 20, WHITE);
+ Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-            // Verifica se o usuário clicou no botão de Voltar
-            if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                telaInstrucoes = false;
-                telaInicial = true;
-            }
+// Desenhar o botão arredondado
+DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
+DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
+
+// Texto do botão
+const char *textoVoltar = "Voltar";
+float fontSizeVoltar = 20; // Tamanho da fonte
+float spacingVoltar = 2;    // Espaçamento entre letras
+
+Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
+
+Vector2 textPosVoltar = (Vector2){
+    botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
+    botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
+};
+
+// Desenhar o texto do botão "Voltar"
+DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
+
+// Verifica se o usuário clicou no botão de Voltar
+if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+    telaInicial = true;
+}
         }
 
  else if (!gameOver && !vitoria) {
