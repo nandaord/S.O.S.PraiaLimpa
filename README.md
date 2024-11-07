@@ -14,6 +14,12 @@ O objetivo principal do jogo é "limpar" o mar, coletando os lixos espalhados pe
 Cada peça de lixo coletada contribui para a limpeza das águas, refletindo um ambiente mais saudável e menos poluído.
 A meta é recolher todos os detritos presentes, deixando o mar limpo e incentivando a preservação ambiental.
 
+## Como jogar:
+
+1 - Use as setas para mover o personagem entre as barreiras de corais
+2 - Seu objetivo será coletar todos os lixos do mar sem ser capturado pelos tubarões
+3 - Powerups podem aparecer a qualquer momento, se coletá-lo você ganha imortalidade por 5 segundos
+4 - Se você coletar todos os lixos, vencerá e poderá consultar o ranking dos jogadores
 
 ## Como executar
 
