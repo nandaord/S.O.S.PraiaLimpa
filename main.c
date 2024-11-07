@@ -802,8 +802,9 @@ if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPres
 else if (telaInstrucoes) {
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
         Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar:", 50, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
-        DrawTextEx(myFont, "Como Jogar:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 50, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
-
+        DrawTextEx(myFont, "Como Jogar:\n\n\n",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 50, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+        DrawTextEx(myFont, "\n\n\n\n\n1- Use as setas para mover o personagem",(Vector2){(SCREEN_WIDTH - titleSize.x) / 5, 100}, 25, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
+    
             // Botão de Voltar
             Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
             DrawRectangleRec(botaoVoltar, GRAY);
