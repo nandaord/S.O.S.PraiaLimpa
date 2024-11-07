@@ -818,21 +818,21 @@ else if (telaInstrucoes) {
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
 
     // Segunda instrução
-    DrawTextEx(myFont, "2 - Seu objetivo é coletar todos os lixos do mar", 
+    DrawTextEx(myFont, "2 - Seu objetivo sera coletar todos os lixos do mar", 
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 2 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "sem ser capturado pelos tubarões", 
+    DrawTextEx(myFont, "sem ser capturado pelos tubaroes", 
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 2 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
 
     // Terceira instrução
     DrawTextEx(myFont, "3 - Powerups podem aparecer a qualquer momento,", 
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 4 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "se coletá-lo você ganha imortalidade por 5 segundos", 
+    DrawTextEx(myFont, "se coleta-lo voce ganha imortalidade por 5 segundos", 
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 4 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
 
     // Quarta instrução
-    DrawTextEx(myFont, "4 - Se você coletar todos os lixos, vencerá", 
+    DrawTextEx(myFont, "4 - Se voce coletar todos os lixos, vencera", 
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 6 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
-    DrawTextEx(myFont, "e poderá consultar o ranking dos jogadores", 
+    DrawTextEx(myFont, "e podera consultar o ranking dos jogadores", 
                (Vector2){(SCREEN_WIDTH - titleSize.x) / 20, startY + 6 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
             
             // teste teste teste
