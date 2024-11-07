@@ -800,14 +800,37 @@ if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPres
         }
 
 else if (telaInstrucoes) {
+
+        float startY = 150; 
+        float lineSpacing = 60;
+        float lineSpacingTopic = 50;
+        float fontSize = 25;
+
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
         Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar:", 50, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
         DrawTextEx(myFont, "Como Jogar:\n\n\n",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 50, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
-        DrawTextEx(myFont, "\n\n\n\n\n1- Use as setas para mover o personagem",(Vector2){(SCREEN_WIDTH - titleSize.x) / 5, 100}, 25, 1, (Color){70, 130, 180, 255}); // Texto azul, fonte menor
-        DrawTextEx(myFont, "\n\n\n\n\n2- Faça taltaltal",(Vector2){(SCREEN_WIDTH - titleSize.x) / 5, 100}, 25, 1, (Color){70, 130, 180, 255}); 
-            
+        DrawTextEx(myFont, "1 - Use as setas para mover o personagem", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY}, fontSize, 1, (Color){70, 130, 180, 255});
+        DrawTextEx(myFont, "entre as barreiras de corais", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
 
+// Segunda instrução
+        DrawTextEx(myFont, "2 - Seu objetivo é coletar todos os lixos do mar", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + 2 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
+        DrawTextEx(myFont, "sem ser capturado pelos tubarões", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + 2 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
 
+// Terceira instrução
+        DrawTextEx(myFont, "3 - Powerups podem aparecer a qualquer momento,", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + 4 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
+        DrawTextEx(myFont, "se coletá-lo você ganha imortalidade por 5 segundos", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + 4 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
+
+// Quarta instrução
+        DrawTextEx(myFont, "4 - Se você coletar todos os lixos, vencerá", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + 6 * lineSpacing}, fontSize, 1, (Color){70, 130, 180, 255});
+        DrawTextEx(myFont, "e poderá consultar o ranking dos jogadores", 
+           (Vector2){(SCREEN_WIDTH - titleSize.x) / 5, startY + 6 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){70, 130, 180, 255});
             
             // teste teste teste
             // Botão de Voltar
