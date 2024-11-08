@@ -476,11 +476,24 @@ bool nomeExiste(const char *nome) {
     return false; // Nome não existe
 }
 
+
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
     Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
     Texture2D fundoJogo = LoadTexture("assets/background/Captura de tela 2024-11-05 170948.png");
+
+    Texture2D banhistaUp = LoadTexture("assets/characters/banhistaCima.png");
+    Texture2D banhistaDown = LoadTexture("assets/characters/banhistaBaixo.png");
+    Texture2D banhistaRight = LoadTexture("assets/characters/banhistaDir.png");
+    Texture2D banhistaLeft = LoadTexture("assets/characters/banhistaEsq.png");
+
+    Texture2D sharkLeft, sharkRight, sharkUp, sharkDown;
+
+    sharkLeft = LoadTexture("assets/characters/tubaraoEsq .png");
+    sharkRight = LoadTexture("assets/characters/tubaraoDir.png");
+    sharkUp = LoadTexture("assets/characters/tubaraoCima.png");
+    sharkDown = LoadTexture("assets/characters/tubaraoBaixo.png");
 
     Color transparente = (Color){255, 255, 255, 128};
     
@@ -867,6 +880,8 @@ Vector2 textPosVoltar = (Vector2){
 // Desenhar o texto do botão "Voltar"
 DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
+Vector2 direcaoBanhista = {1, 0};
+
 // Verifica se o usuário clicou no botão de Voltar
 if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
@@ -879,7 +894,7 @@ if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPres
    DrawTexture(fundoJogo,0,0,WHITE);
 
     tempoDecorrido = GetTime() - tempoInicial;
-    DrawText(TextFormat("Tempo decorrido: %.2f segundos", tempoDecorrido), 10, 10, 20, BLACK);
+DrawTextEx(myFont2, TextFormat("Tempo decorrido: %.2f segundos", tempoDecorrido), (Vector2){10, 10}, 20, 0, BLACK);
 
             moverJogador(&player);
             gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
@@ -898,7 +913,7 @@ if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPres
             desenharPowerUps(headPowerUp);
 
             if (mostrarMensagem) {
-                DrawText("Power-up capturado! Imunidade ativada por 5 segundos!", 90, 50, 20, RED);
+        DrawTextEx(myFont2, "Power-up capturado! Imunidade ativada por 5 segundos!", (Vector2){90, 50}, 20, 0, RED);
                 tempoMensagem--;
                 if (tempoMensagem <= 0) mostrarMensagem = false;
             }
@@ -944,12 +959,59 @@ if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPres
                 temp = temp->prox;
             }
 
-            DrawCircleV(player.posicao, PLAYER_SIZE, BLUE);
-            temp = head;
-            while (temp != NULL) {
-                DrawCircleV(temp->posicao, SHARK_SIZE, RED);
-                temp = temp->prox;
+        // Defina uma variável para armazenar a última direção
+int lastDirection; // Comece com uma direção padrão, como direita
+
+// Dentro do loop principal
+if (IsKeyDown(KEY_RIGHT)) {
+    lastDirection = KEY_RIGHT; // Atualize a direção
+    DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+} else if (IsKeyDown(KEY_LEFT)) {
+    lastDirection = KEY_LEFT;
+    DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+} else if (IsKeyDown(KEY_UP)) {
+    lastDirection = KEY_UP;
+    DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+} else if (IsKeyDown(KEY_DOWN)) {
+    lastDirection = KEY_DOWN;
+    DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+} else {
+    // Nenhuma tecla pressionada, mantenha a última direção
+    switch (lastDirection) {
+        case KEY_RIGHT:
+            DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+            break;
+        case KEY_LEFT:
+            DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+            break;
+        case KEY_UP:
+            DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+            break;
+        case KEY_DOWN:
+            DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+            break;
+    }
+}
+
+temp = head;
+
+                while (temp != NULL) {
+        // Seleciona a textura do tubarão com base na direção
+        if (fabs(temp->direcao.x) > fabs(temp->direcao.y)) {
+            if (temp->direcao.x > 0) {
+                DrawTextureEx(sharkRight, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
+            } else {
+                DrawTextureEx(sharkLeft, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
             }
+        } else {
+            if (temp->direcao.y > 0) {
+                DrawTextureEx(sharkDown, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
+            } else {
+                DrawTextureEx(sharkUp, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
+            }
+        }
+        temp = temp->prox;
+    }
 
             desenharBarreiras(barreiras, numBarreiras);
             Lixo* aux = lixo;
@@ -1080,6 +1142,14 @@ DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});
     
     UnloadTexture(background);
     UnloadTexture(fundoJogo);
+    UnloadTexture(sharkDown);
+    UnloadTexture(sharkLeft);    
+    UnloadTexture(sharkRight);
+    UnloadTexture(sharkUp);
+    UnloadTexture(banhistaDown);
+    UnloadTexture(banhistaLeft);    
+    UnloadTexture(banhistaRight);
+    UnloadTexture(banhistaUp);
 
     CloseWindow();
     return 0;
