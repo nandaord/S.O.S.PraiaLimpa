@@ -808,9 +808,10 @@ else if (telaInstrucoes) {
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
     
     // Ajustando o título mais acima e reduzindo o tamanho da fonte
-    Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar:", 40, 1);
-    DrawTextEx(myFont, "Como Jogar:\n\n\n", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 50}, 40, 1, (Color){70, 130, 180, 255});
-    
+   Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
+        DrawTextEx(myFont, "Como Jogar",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2+2, 70}, 40, 1, (Color){0, 0, 0, 145}); // Texto azul, fonte menor
+        DrawTextEx(myFont, "Como Jogar",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 68}, 40, 1, (Color){70, 130, 180, 200}); // Texto azul, fonte menor
+
  // Calcula a largura do texto
 Vector2 line1Size = MeasureTextEx(myFont2, "1 - Use as setas para mover o personagem", fontSize, 1);
 Vector2 line2Size = MeasureTextEx(myFont2, "entre as barreiras de corais", fontSize, 1);
