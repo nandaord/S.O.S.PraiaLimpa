@@ -136,13 +136,15 @@ void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBa
 }
 
 void desenharPowerUps(PowerUp* head) {
+    Texture2D powerUp = LoadTexture("assets/powerUp/poção vermelha.png");
     PowerUp* temp = head;
     while (temp != NULL) {
         if (temp->ativo) {
-            DrawCircleV(temp->posicao, 10, YELLOW);  // Desenha o power-up em amarelo
+            DrawTextureEx(powerUp, (Vector2){temp->posicao.x - (powerUp.width * 0.5f), temp->posicao.y - (powerUp.height * 0.5f)}, 0.0f, 2.0f, WHITE);
         }
         temp = temp->prox;
     }
+    //UnloadTexture(powerUp);
 }
 
 void atualizarImunidade() {
@@ -400,25 +402,24 @@ bool verificaColisaoBarreira(Player player, Barreira barreira) {
     return CheckCollisionCircleRec(player.posicao, PLAYER_SIZE, barreira.rect);
 }
 void inicializarBarreiras(Barreira* barreiras, int* numBarreiras) {
-    *numBarreiras = 8;
-    barreiras[0].rect = (Rectangle){ 200, 150, 10, 300 }; // Barreira vertical
-    barreiras[1].rect = (Rectangle){ 400, 100, 300, 10 }; // Barreira horizontal
-    barreiras[2].rect = (Rectangle){ 600, 300, 10, 200 }; // Barreira vertical
-    barreiras[3].rect = (Rectangle){ 300, 400, 200, 10 }; // Barreira horizontal
-    barreiras[4].rect = (Rectangle){ 600, 200, 10, 300 };   // Vertical direita
 
-    // Pequenas barreiras para formar obstáculos no meio
-    barreiras[5].rect = (Rectangle){ 300, 300, 60, 10 };    // Horizontal pequena no meio
-    barreiras[6].rect = (Rectangle){ 500, 150, 10, 120 };   // Vertical pequena no canto superior direito
+    *numBarreiras = 7;
+    barreiras[0].rect = (Rectangle){ 92, 146, 56, 300 }; // Barreira vertical
+    barreiras[1].rect = (Rectangle){ 220, 299, 131, 56 }; // Barreira horizontal
+    barreiras[2].rect = (Rectangle){ 298, 446, 203, 56 }; // Barreira vertical
+    barreiras[3].rect = (Rectangle){ 238, 69, 252, 56 }; // Barreira horizontal
+    barreiras[4].rect = (Rectangle){ 560, 195, 56, 200 }; // Vertical direita
+
+    barreiras[5].rect = (Rectangle){ 608, 32, 131, 56 };  // Vertical pequena no canto superior direito
 
     // Barreira na parte superior direita
-    barreiras[7].rect = (Rectangle){ 650, 50, 100, 10 };  
+    barreiras[6].rect = (Rectangle){ 637, 530, 131, 56 }; 
 }
 
 
 void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
     for (int i = 0; i < numBarreiras; i++) {
-        DrawRectangleRec(barreiras[i].rect, DARKGRAY);
+        DrawRectangleRec(barreiras[i].rect, PURPLE);
     }
 }
 
@@ -487,6 +488,12 @@ int main(void) {
     Texture2D banhistaDown = LoadTexture("assets/characters/banhistaBaixo.png");
     Texture2D banhistaRight = LoadTexture("assets/characters/banhistaDir.png");
     Texture2D banhistaLeft = LoadTexture("assets/characters/banhistaEsq.png");
+
+    Texture2D lixo1 = LoadTexture("assets/trash/lixo1.png");
+    Texture2D lixo2 = LoadTexture("assets/trash/lixo2.png");
+    Texture2D lixo3 = LoadTexture("assets/trash/lixo3.png");
+    Texture2D lixo4 = LoadTexture("assets/trash/lixo4.png");
+    Texture2D lixo5 = LoadTexture("assets/trash/lixo5.png");
 
     Texture2D sharkLeft, sharkRight, sharkUp, sharkDown;
 
@@ -1014,13 +1021,32 @@ temp = head;
     }
 
             desenharBarreiras(barreiras, numBarreiras);
-            Lixo* aux = lixo;
-            while (aux != NULL) {
-                if (!aux->coletado) {
-                    DrawCircleV(aux->posicao, 10, GREEN);
-                }
-                aux = aux->prox;
-            }
+Lixo* aux = lixo;
+int i = 1;
+while (aux != NULL) {
+    if (!aux->coletado) {
+        switch (i) {
+            case 1:
+                DrawTextureEx(lixo1, aux->posicao, 0.0f, 0.4f, WHITE);
+                break;
+            case 2:
+                DrawTextureEx(lixo2, aux->posicao, 0.0f, 0.4f, WHITE);
+                break;
+            case 3:
+                DrawTextureEx(lixo3, aux->posicao, 0.0f, 0.4f, WHITE);
+                break;
+            case 4:
+                DrawTextureEx(lixo4, aux->posicao, 0.0f, 0.4f, WHITE);
+                break;
+            case 5:
+                DrawTextureEx(lixo5, aux->posicao, 0.0f, 0.4f, WHITE);
+                break;
+        }
+    }
+    aux = aux->prox;
+    i++;
+}
+
 
         } else {
 
@@ -1150,7 +1176,12 @@ DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});
     UnloadTexture(banhistaLeft);    
     UnloadTexture(banhistaRight);
     UnloadTexture(banhistaUp);
-
+    UnloadTexture(lixo1);
+    UnloadTexture(lixo2);
+    UnloadTexture(lixo3);    
+    UnloadTexture(lixo4);
+    UnloadTexture(lixo5);
+    
     CloseWindow();
     return 0;
 }
