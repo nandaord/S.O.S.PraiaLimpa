@@ -482,7 +482,6 @@ bool nomeExiste(const char *nome) {
     return false; // Nome não existe
 }
 
-
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
@@ -547,6 +546,7 @@ int main(void) {
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 
         if (telaInicial) {
             DrawTexturePro(
@@ -629,27 +629,44 @@ int main(void) {
                 (Vector2){ botaoSair.x + (botaoSair.width - textSizeSair.x) / 2, botaoSair.y + (botaoSair.height - textSizeSair.y) / 2 },
                 30, 2, corTexto);
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 mousePos = GetMousePosition();
-            if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
+        Vector2 mousePos = GetMousePosition();
+    
+        if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 telaInicial = false;
                 telaNome = true;
                 telaRanking = false;
                 telaInstrucoes = false;
-            } else if (CheckCollisionPointRec(mousePos, botaoRanking)) {
+            }
+        }
+        if (CheckCollisionPointRec(mousePos, botaoRanking)) {
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 telaInicial = false;
                 telaRanking = true;
                 telaInstrucoes = false;
                 telaNome = false;
-            } else if (CheckCollisionPointRec(mousePos, botaoInstrucoes)) {
+            }
+        }
+
+        if (CheckCollisionPointRec(mousePos, botaoInstrucoes)) {
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 telaInicial = false;
                 telaInstrucoes = true;
                 telaRanking = false;
                 telaNome = false;
-            }else if (CheckCollisionPointRec(mousePos, botaoSair)) {
+            }
+        }
+
+        if (CheckCollisionPointRec(mousePos, botaoSair)) {
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 CloseWindow();
             }
         }
+        
     }
 
     else if (telaNome) {
@@ -721,39 +738,38 @@ int main(void) {
 
         static bool exibirMensagemErro = false;
 
-            // Verifica se o botão "Jogar" pode ser clicado
+        Vector2 mousePos = GetMousePosition();
+        if (CheckCollisionPointRec(mousePos, botaoNome)) {
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                Vector2 mousePos = GetMousePosition();
-                if (CheckCollisionPointRec(mousePos, botaoNome)) {
-                    // Verifica se o nome é válido
-                    bool nomeValido = (caractereAtual > 0 && !nomeExiste(nomeJogador));
-                    if (nomeValido) {
-                        telaNome = false;
-                        telaInicial = false;
-                        telaRanking = false;
-                        exibirMensagemErro = false;  // Limpa a mensagem de erro
+            // Verifica se o nome é válido
+                bool nomeValido = (caractereAtual > 0 && !nomeExiste(nomeJogador));
+                if (nomeValido) {
+                    telaNome = false;
+                    telaInicial = false;
+                    telaRanking = false;
+                    exibirMensagemErro = false;  // Limpa a mensagem de erro
 
-                        tempoInicial = GetTime();  // Reinicia o cronômetro do jogo
-                        // Limpa a mensagem de erro se o nome for válido
-                    } else {
-                        exibirMensagemErro = true; // Define para exibir mensagem de erro
-                    }
-                } 
-            }
+                    tempoInicial = GetTime();  // Reinicia o cronômetro do jogo
+                    // Limpa a mensagem de erro se o nome for válido
+                } else {
+                    exibirMensagemErro = true; // Define para exibir mensagem de erro
+                }
+            } 
+        }
+        // Exibir mensagem de erro se o nome não for válido
+        if (exibirMensagemErro) {
+            const char *mensagemErro = "Nome usado ou vazio. Tente outro!";
+            float fontSizeErro = 20; // Tamanho da fonte
+            float spacingErro = 2;   
 
-            // Exibir mensagem de erro se o nome não for válido
-            if (exibirMensagemErro) {
-                const char *mensagemErro = "Nome usado ou vazio. Tente outro!";
-                float fontSizeErro = 20; // Tamanho da fonte
-                float spacingErro = 2;   
+            Vector2 textSizeErro = MeasureTextEx(myFont2, mensagemErro, fontSizeErro, spacingErro);
 
-                Vector2 textSizeErro = MeasureTextEx(myFont2, mensagemErro, fontSizeErro, spacingErro);
-
-                Vector2 textPosErro = (Vector2){
-                SCREEN_WIDTH / 2 - textSizeErro.x / 2,
-                330 // Y fixo
-                };
-                DrawTextEx(myFont2, mensagemErro, textPosErro, fontSizeErro, spacingErro, RED);
+            Vector2 textPosErro = (Vector2){
+            SCREEN_WIDTH / 2 - textSizeErro.x / 2,
+            330 // Y fixo
+            };
+            DrawTextEx(myFont2, mensagemErro, textPosErro, fontSizeErro, spacingErro, RED);
 
         }
 
@@ -816,9 +832,12 @@ int main(void) {
         DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
         // Verifica se o usuário clicou no botão de Voltar
-        if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
-            telaInicial = true;
+        if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                telaInicial = true;
+            }    
         }
 
     }
@@ -892,9 +911,12 @@ int main(void) {
         DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
         // Verifica se o usuário clicou no botão de Voltar
-        if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
-            telaInicial = true;
+        if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                telaInicial = true;
+            }    
         }
     }
 
@@ -1103,13 +1125,16 @@ int main(void) {
 
             Vector2 mousePos = GetMousePosition();
 
-            if (CheckCollisionPointRec(mousePos, botaoVerRanking) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                adicionarRanking(nomeJogador, tempoDecorrido);
-                adicionouAoRanking = true;
-                telaInicial = false;
-                telaRanking = true;
-                telaInstrucoes = false;
-            } 
+            if (CheckCollisionPointRec(mousePos, botaoVerRanking)){
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    adicionarRanking(nomeJogador, tempoDecorrido);
+                    adicionouAoRanking = true;
+                    telaInicial = false;
+                    telaRanking = true;
+                    telaInstrucoes = false;
+                }    
+            }
         
         } else {
 
@@ -1155,15 +1180,20 @@ int main(void) {
             DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSize, spacing, WHITE);
 
             Vector2 mousePos = GetMousePosition();
-            if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking);
-                telaNome = true;
-                telaInicial = false;
+            if (CheckCollisionPointRec(mousePos, botaoReiniciar)){
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking);
+                    telaNome = true;
+                    telaInicial = false;
+                }    
             }
-            
-            else if (CheckCollisionPointRec(mousePos, botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
-                telaInicial = true;
+            else if (CheckCollisionPointRec(mousePos, botaoVoltar)){
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                    telaInicial = true;
+                }    
             }
         }
     }
