@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
-
+#include <string.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -663,7 +663,6 @@ int main(void) {
         const int botaoLargura = 200;
         const int botaoAltura = 50;
 
-        Color corBotaoNome = (Color){173, 216, 230, 230}; // Azul de mar (Dodger Blue)
         Color corTexto = (Color){255, 255, 255, 255}; // Branco
         Color corBorda = (Color){70, 130, 180, 255}; // Azul escuro (Dark Blue)
         Color corCaixaTexto = (Color){255, 255, 255, 255};
@@ -898,8 +897,6 @@ int main(void) {
         // Desenhar o texto do botão "Voltar"
         DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
-        Vector2 direcaoBanhista = {1, 0};
-
         // Verifica se o usuário clicou no botão de Voltar
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
@@ -907,114 +904,114 @@ int main(void) {
         }
     }
 
-        else if (!gameOver && !vitoria) {
+    else if (!gameOver && !vitoria) {
 
         DrawTexture(fundoJogo,0,0,WHITE);
 
         tempoDecorrido = GetTime() - tempoInicial;
-    DrawTextEx(myFont2, TextFormat("Tempo decorrido: %.2f segundos", tempoDecorrido), (Vector2){10, 10}, 20, 0, BLACK);
+        DrawTextEx(myFont2, TextFormat("Tempo decorrido: %.2f segundos", tempoDecorrido), (Vector2){10, 10}, 20, 0, BLACK);
 
-                moverJogador(&player);
-                gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
-                verificarColetaItens(player, lixo);
+        moverJogador(&player);
+        gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
+        verificarColetaItens(player, lixo);
 
-                if (todosItensColetados(lixo)) {
-                    vitoria = true;
-                }
+        if (todosItensColetados(lixo)) {
+            vitoria = true;
+        }
 
-                if (coletarPowerUp(player, &headPowerUp, &head)) {
-                    mostrarMensagem = true;
-                    tempoMensagem = 300;  // Exibe a mensagem por 2 segundos
-                }
+        if (coletarPowerUp(player, &headPowerUp, &head)) {
+            mostrarMensagem = true;
+            tempoMensagem = 300;  // Exibe a mensagem por 2 segundos
+        }
 
-                atualizarImunidade();
-                desenharPowerUps(headPowerUp);
+        atualizarImunidade();
+        desenharPowerUps(headPowerUp);
 
-                if (mostrarMensagem) {
+        if (mostrarMensagem) {
             DrawTextEx(myFont2, "Power-up capturado! Imunidade ativada por 5 segundos!", (Vector2){90, 50}, 20, 0, RED);
-                    tempoMensagem--;
-                    if (tempoMensagem <= 0) mostrarMensagem = false;
-                }
+            tempoMensagem--;
+            if (tempoMensagem <= 0) mostrarMensagem = false;
+        }
 
                 // Verifica colisão com as barreiras
-                for (int i = 0; i < numBarreiras; i++) {
-                    if (verificaColisaoBarreira(player, barreiras[i])) {
-                        // Se houver colisão, impede o movimento do jogador
-                        player.posicao.x -= (IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT)) * player.speed;
-                        player.posicao.y -= (IsKeyDown(KEY_DOWN) - IsKeyDown(KEY_UP)) * player.speed;
-                        break;
-                    }
-                }
+        for (int i = 0; i < numBarreiras; i++) {
+            if (verificaColisaoBarreira(player, barreiras[i])) {
+                // Se houver colisão, impede o movimento do jogador
+                player.posicao.x -= (IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT)) * player.speed;
+                player.posicao.y -= (IsKeyDown(KEY_DOWN) - IsKeyDown(KEY_UP)) * player.speed;
+                break;
+            }
+        }
 
                 // Incrementa o tempo desde o último tubarão adicionado
-                tempoDesdeUltimoTubarao++;
+        tempoDesdeUltimoTubarao++;
 
                 // Adiciona um novo tubarão a cada 35 segundos (2100 quadros)
-                if (tempoDesdeUltimoTubarao >= intervaloTubarao) {
-                    float x, y;
-                    do {
-                        x = GetRandomValue(0, SCREEN_WIDTH);
-                        y = GetRandomValue(0, SCREEN_HEIGHT);
-                    } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
+        if (tempoDesdeUltimoTubarao >= intervaloTubarao) {
+            float x, y;
+            do {
+                x = GetRandomValue(0, SCREEN_WIDTH);
+                y = GetRandomValue(0, SCREEN_HEIGHT);
+            } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
 
-                    // Adiciona o novo tubarão e define uma direção inicial
-                    addTubarao(&head, x, y, SHARK_SPEED);
-                    head->direcao = (Vector2){ ((float)GetRandomValue(-10, 10)) / 10.0f, ((float)GetRandomValue(-10, 10)) / 10.0f };
+            // Adiciona o novo tubarão e define uma direção inicial
+            addTubarao(&head, x, y, SHARK_SPEED);
+            head->direcao = (Vector2){ ((float)GetRandomValue(-10, 10)) / 10.0f, ((float)GetRandomValue(-10, 10)) / 10.0f };
 
-                    // Reinicia o contador
-                    tempoDesdeUltimoTubarao = 0;
-                }
+            // Reinicia o contador
+            tempoDesdeUltimoTubarao = 0;
+        }
 
-                moverTubaraoAleatoriamente(head);
+        moverTubaraoAleatoriamente(head);
 
-                Tubarao* temp = head;
-                float distanciaParaColisao = (PLAYER_SIZE / 2.0f) + (SHARK_SIZE / 2.0f);
-                while (temp != NULL) {
-                    if (!jogadorImune && calcularDistancia(player.posicao, temp->posicao) < distanciaParaColisao) {
-                        gameOver = true;
-                        break;
-                    }
-                    temp = temp->prox;
-                }
+        Tubarao* temp = head;
+        float distanciaParaColisao = (PLAYER_SIZE / 2.0f) + (SHARK_SIZE / 2.0f);
+        while (temp != NULL) {
+            if (!jogadorImune && calcularDistancia(player.posicao, temp->posicao) < distanciaParaColisao) {
+                gameOver = true;
+                break;
+            }
+            temp = temp->prox;
+        }
 
-            // Defina uma variável para armazenar a última direção
-    int lastDirection; // Comece com uma direção padrão, como direita
+    // Defina uma variável para armazenar a última direção
+        int lastDirection; // Comece com uma direção padrão, como direita
 
     // Dentro do loop principal
-    if (IsKeyDown(KEY_RIGHT)) {
-        lastDirection = KEY_RIGHT; // Atualize a direção
-        DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-    } else if (IsKeyDown(KEY_LEFT)) {
-        lastDirection = KEY_LEFT;
-        DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-    } else if (IsKeyDown(KEY_UP)) {
-        lastDirection = KEY_UP;
-        DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-    } else if (IsKeyDown(KEY_DOWN)) {
-        lastDirection = KEY_DOWN;
-        DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-    } else {
-        // Nenhuma tecla pressionada, mantenha a última direção
-        switch (lastDirection) {
-            case KEY_RIGHT:
-                DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-                break;
-            case KEY_LEFT:
-                DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-                break;
-            case KEY_UP:
-                DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-                break;
-            case KEY_DOWN:
-                DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-                break;
+        if (IsKeyDown(KEY_RIGHT)) {
+            lastDirection = KEY_RIGHT; // Atualize a direção
+            DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+        } else if (IsKeyDown(KEY_LEFT)) {
+            lastDirection = KEY_LEFT;
+            DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+        } else if (IsKeyDown(KEY_UP)) {
+            lastDirection = KEY_UP;
+            DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+        } else if (IsKeyDown(KEY_DOWN)) {
+            lastDirection = KEY_DOWN;
+            DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+        } else {
+            // Nenhuma tecla pressionada, mantenha a última direção
+            switch (lastDirection) {
+                case KEY_RIGHT:
+                    DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+                    break;
+                case KEY_LEFT:
+                    DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+                    break;
+                case KEY_UP:
+                    DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+                    break;
+                case KEY_DOWN:
+                    DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
+                    break;
+            }
         }
-    }
 
-    temp = head;
+        temp = head;
 
-                    while (temp != NULL) {
-            // Seleciona a textura do tubarão com base na direção
+        while (temp != NULL) {
+                // Seleciona a textura do tubarão com base na direção
             if (fabs(temp->direcao.x) > fabs(temp->direcao.y)) {
                 if (temp->direcao.x > 0) {
                     DrawTextureEx(sharkRight, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
@@ -1028,153 +1025,156 @@ int main(void) {
                     DrawTextureEx(sharkUp, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
                 }
             }
+
             temp = temp->prox;
         }
 
-                desenharBarreiras(barreiras, numBarreiras);
-    Lixo* aux = lixo;
-    int i = 1;
-    while (aux != NULL) {
-        if (!aux->coletado) {
-            switch (i) {
-                case 1:
-                    DrawTextureEx(lixo1, aux->posicao, 0.0f, 0.4f, WHITE);
-                    break;
-                case 2:
-                    DrawTextureEx(lixo2, aux->posicao, 0.0f, 0.4f, WHITE);
-                    break;
-                case 3:
-                    DrawTextureEx(lixo3, aux->posicao, 0.0f, 0.4f, WHITE);
-                    break;
-                case 4:
-                    DrawTextureEx(lixo4, aux->posicao, 0.0f, 0.4f, WHITE);
-                    break;
-                case 5:
-                    DrawTextureEx(lixo5, aux->posicao, 0.0f, 0.4f, WHITE);
-                    break;
+        desenharBarreiras(barreiras, numBarreiras);
+
+        Lixo* aux = lixo;
+        int i = 1;
+        while (aux != NULL) {
+            if (!aux->coletado) {
+                switch (i) {
+                    case 1:
+                        DrawTextureEx(lixo1, aux->posicao, 0.0f, 0.4f, WHITE);
+                        break;
+                    case 2:
+                        DrawTextureEx(lixo2, aux->posicao, 0.0f, 0.4f, WHITE);
+                        break;
+                    case 3:
+                        DrawTextureEx(lixo3, aux->posicao, 0.0f, 0.4f, WHITE);
+                        break;
+                    case 4:
+                        DrawTextureEx(lixo4, aux->posicao, 0.0f, 0.4f, WHITE);
+                        break;
+                    case 5:
+                        DrawTextureEx(lixo5, aux->posicao, 0.0f, 0.4f, WHITE);
+                        break;
+                }
             }
+            aux = aux->prox;
+            i++;
         }
-        aux = aux->prox;
-        i++;
-    }
 
 
-            } else {
+    } else {
 
-                tempoInicial = GetTime();
-                Color backgroundColor = (Color){173, 216, 230, 255};
-                const char *mensagem = vitoria ? "Todos os lixos do mar foram coletados!" : "Fim de jogo!";
-                Vector2 textSize = MeasureTextEx(myFont2, mensagem, 30, 2);
-                Vector2 textPos = (Vector2){
-                    (SCREEN_WIDTH - textSize.x) / 2,
-                    SCREEN_HEIGHT / 2 - 20
-                };
+        tempoInicial = GetTime();
+        Color backgroundColor = (Color){173, 216, 230, 255};
+        const char *mensagem = vitoria ? "Parabens! Todos os lixos do mar foram coletados!" : "Fim de jogo!";
+        Vector2 textSize = MeasureTextEx(myFont2, mensagem, 30, 2);
+        Vector2 textPos = (Vector2){
+            (SCREEN_WIDTH - textSize.x) / 2,
+            SCREEN_HEIGHT / 2 - 20
+        };
 
-                ClearBackground(backgroundColor);
-                DrawTextEx(myFont2, mensagem, textPos, 30, 2, RED);
-                
-                if (vitoria && !adicionouAoRanking) {
-
-                    Rectangle botaoVerRanking = {
-                        SCREEN_WIDTH / 2 - 75, 
-                        SCREEN_HEIGHT / 2 + 40, 
-                        150, 
-                        40
-                    };
-            
-                    const char *mensagem = TextFormat("Tempo final: %.2f segundos", tempoDecorrido);
-
-                    Vector2 textSize = MeasureTextEx(myFont2,mensagem,20,2);
-                    Vector2 textPos = (Vector2){
-                        (SCREEN_WIDTH-textSize.x) / 2,
-                        SCREEN_HEIGHT / 2 + 10
-                    };
-
-                    DrawTextEx(myFont2,mensagem,textPos,20,2,DARKGRAY);
-
-                    DrawRectangleRounded(botaoVerRanking,0.3f,10,(Color){80,155,157,100});
-                    DrawRectangleRoundedLines(botaoVerRanking, 0.3f , 16 , 2 , (Color){80, 155, 157, 200});
-
-                    const char *texto = "Ver Ranking";
-                    float fontSize = 20;      
-                    float spacing = 2;       
-
-                    Vector2 textSize2 = MeasureTextEx(myFont2, texto, fontSize, spacing);
-
-                    Vector2 textPos2 = (Vector2){
-                        botaoVerRanking.x + (botaoVerRanking.width - textSize2.x) / 2,
-                        botaoVerRanking.y + (botaoVerRanking.height - textSize2.y) / 2
-                    };
-
-                    DrawTextEx(myFont2, texto, textPos2, fontSize, spacing, WHITE);
-
-                    Vector2 mousePos = GetMousePosition();
-
-                    if (CheckCollisionPointRec(mousePos, botaoVerRanking) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                        adicionarRanking(nomeJogador, tempoDecorrido);
-                        adicionouAoRanking = true;
-                        telaInicial = false;
-                        telaRanking = true;
-                    } 
+        ClearBackground(backgroundColor);
+        DrawTextEx(myFont2, mensagem, textPos, 30, 2, RED);
         
-                } else {
+        if (vitoria && !adicionouAoRanking) {
 
-                Rectangle botaoReiniciar = {
-                    SCREEN_WIDTH / 2-140,
-                    SCREEN_HEIGHT / 2 + 40,
-                    100,
-                    40
-                };
+            Rectangle botaoVerRanking = {
+                SCREEN_WIDTH / 2 - 75, 
+                SCREEN_HEIGHT / 2 + 40, 
+                150, 
+                40
+            };
+    
+            const char *mensagem = TextFormat("Tempo final: %.2f segundos", tempoDecorrido);
 
-                Rectangle botaoVoltar = {
-                    SCREEN_WIDTH / 2 + 40,
-                    SCREEN_HEIGHT / 2 + 40,
-                    100,
-                    40
-                };
+            Vector2 textSize = MeasureTextEx(myFont2,mensagem,20,2);
+            Vector2 textPos = (Vector2){
+                (SCREEN_WIDTH-textSize.x) / 2,
+                SCREEN_HEIGHT / 2 + 10
+            };
 
-                DrawRectangleRounded(botaoReiniciar, 0.3f, 10, (Color){80, 155, 157, 100});
-                DrawRectangleRoundedLines(botaoReiniciar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
+            DrawTextEx(myFont2,mensagem,textPos,20,2,DARKGRAY);
 
-                DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){40, 120, 160, 100});  // Cor mais escura e azulado para o botão
-                DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});  // Cor mais escura e azulado para a borda
+            DrawRectangleRounded(botaoVerRanking,0.3f,10,(Color){80,155,157,100});
+            DrawRectangleRoundedLines(botaoVerRanking, 0.3f , 16 , 2 , (Color){80, 155, 157, 200});
 
-                const char *textoReiniciar = "Reiniciar";
-                const char *textoVoltar = "Voltar";
-                float fontSize = 20;      
-                float spacing = 2; 
+            const char *texto = "Ver Ranking";
+            float fontSize = 20;      
+            float spacing = 2;       
 
-                Vector2 textSizeReiniciar = MeasureTextEx(myFont2, textoReiniciar, fontSize, spacing);
-                Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSize, spacing);
+            Vector2 textSize2 = MeasureTextEx(myFont2, texto, fontSize, spacing);
 
-                Vector2 textPosReiniciar = (Vector2){
-                    botaoReiniciar.x + (botaoReiniciar.width - textSizeReiniciar.x) / 2,
-                    botaoReiniciar.y + (botaoReiniciar.height - textSizeReiniciar.y) / 2
-                };
+            Vector2 textPos2 = (Vector2){
+                botaoVerRanking.x + (botaoVerRanking.width - textSize2.x) / 2,
+                botaoVerRanking.y + (botaoVerRanking.height - textSize2.y) / 2
+            };
 
-                Vector2 textPosVoltar = (Vector2){
-                    botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
-                    botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
-                };
+            DrawTextEx(myFont2, texto, textPos2, fontSize, spacing, WHITE);
 
-                DrawTextEx(myFont2, textoReiniciar, textPosReiniciar, fontSize, spacing, WHITE);
-                DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSize, spacing, WHITE);
+            Vector2 mousePos = GetMousePosition();
 
-                Vector2 mousePos = GetMousePosition();
-                if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking);
-                    telaNome = true;
-                    telaInicial = false;
-                }
-                
-                else if (CheckCollisionPointRec(mousePos, botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
-                    telaInicial = true;
-                }
-            }}
+            if (CheckCollisionPointRec(mousePos, botaoVerRanking) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                adicionarRanking(nomeJogador, tempoDecorrido);
+                adicionouAoRanking = true;
+                telaInicial = false;
+                telaRanking = true;
+                telaInstrucoes = false;
+            } 
+        
+        } else {
 
-            EndDrawing();
-        }
+            Rectangle botaoReiniciar = {
+                SCREEN_WIDTH / 2-140,
+                SCREEN_HEIGHT / 2 + 40,
+                100,
+                40
+            };
+
+            Rectangle botaoVoltar = {
+                SCREEN_WIDTH / 2 + 40,
+                SCREEN_HEIGHT / 2 + 40,
+                100,
+                40
+            };
+
+            DrawRectangleRounded(botaoReiniciar, 0.3f, 10, (Color){80, 155, 157, 100});
+            DrawRectangleRoundedLines(botaoReiniciar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
+
+            DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){40, 120, 160, 100});  // Cor mais escura e azulado para o botão
+            DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});  // Cor mais escura e azulado para a borda
+
+            const char *textoReiniciar = "Reiniciar";
+            const char *textoVoltar = "Voltar";
+            float fontSize = 20;      
+            float spacing = 2; 
+
+            Vector2 textSizeReiniciar = MeasureTextEx(myFont2, textoReiniciar, fontSize, spacing);
+            Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSize, spacing);
+
+            Vector2 textPosReiniciar = (Vector2){
+                botaoReiniciar.x + (botaoReiniciar.width - textSizeReiniciar.x) / 2,
+                botaoReiniciar.y + (botaoReiniciar.height - textSizeReiniciar.y) / 2
+            };
+
+            Vector2 textPosVoltar = (Vector2){
+                botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
+                botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
+            };
+
+            DrawTextEx(myFont2, textoReiniciar, textPosReiniciar, fontSize, spacing, WHITE);
+            DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSize, spacing, WHITE);
+
+            Vector2 mousePos = GetMousePosition();
+            if (CheckCollisionPointRec(mousePos, botaoReiniciar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking);
+                telaNome = true;
+                telaInicial = false;
+            }
+            
+            else if (CheckCollisionPointRec(mousePos, botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                telaInicial = true;
+            }
+        }}
+
+        EndDrawing();
+    }
     
     UnloadTexture(background);
     UnloadTexture(fundoJogo);
