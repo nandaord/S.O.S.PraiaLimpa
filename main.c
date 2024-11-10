@@ -118,14 +118,14 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
 }
 
 void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
-    int intervaloPowerUp = 1000;
+    int intervaloPowerUp = 60;
 
     if (powerUpsGerados < MAX_POWERUPS  && contadorTempoPowerUp >= intervaloPowerUp) {  // Probabilidade baixa de aparecer
         Vector2 posicao;
          // Tenta gerar uma posição fora das barreiras
-        do {
+        // do {
             posicao = (Vector2){ GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50) };
-        } while (posicaoEmBarreira(posicao, barreiras, numBarreiras));
+        // } while (posicaoEmBarreira(posicao, barreiras, numBarreiras));
         
         pushPowerUp(headPowerUp, posicao);
         powerUpsGerados++;
@@ -135,12 +135,12 @@ void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBa
     contadorTempoPowerUp++;
 }
 
-void desenharPowerUps(PowerUp* head) {
-    Texture2D powerUp = LoadTexture("assets/powerUp/poção vermelha.png");
+void desenharPowerUps(PowerUp* head, Texture2D powerUpTexture) {
     PowerUp* temp = head;
     while (temp != NULL) {
         if (temp->ativo) {
-            DrawTextureEx(powerUp, (Vector2){temp->posicao.x - (powerUp.width * 0.5f), temp->posicao.y - (powerUp.height * 0.5f)}, 0.0f, 2.0f, WHITE);
+            printf("Desenhando PowerUp na posição: (%f, %f)\n", temp->posicao.x, temp->posicao.y);
+            DrawTextureEx(powerUpTexture, (Vector2){temp->posicao.x - (powerUpTexture.width * 0.5f), temp->posicao.y - (powerUpTexture.height * 0.5f)}, 0.0f, 2.0f, WHITE);
         }
         temp = temp->prox;
     }
@@ -488,6 +488,7 @@ int main(void) {
 
     Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
     Texture2D fundoJogo = LoadTexture("assets/background/Captura de tela 2024-11-05 170948.png");
+    Texture2D powerUpTexture = LoadTexture("assets/powerUp/pocaoVermelha.png");
 
     Texture2D banhistaUp = LoadTexture("assets/characters/banhistaCima.png");
     Texture2D banhistaDown = LoadTexture("assets/characters/banhistaBaixo.png");
@@ -507,6 +508,7 @@ int main(void) {
     sharkUp = LoadTexture("assets/characters/tubaraoCima.png");
     sharkDown = LoadTexture("assets/characters/tubaraoBaixo.png");
 
+
     Color transparente = (Color){255, 255, 255, 128};
     
     Player player = { .posicao = {100, 100}, .speed = PLAYER_SPEED };
@@ -522,7 +524,6 @@ int main(void) {
 
     inicializarBarreiras(barreiras, &numBarreiras);
     inicializarItensOrdenados(&lixo, barreiras, numBarreiras);
-
 
     bool gameOver = false;
     bool vitoria = false;
@@ -540,9 +541,10 @@ int main(void) {
 
     Font myFont = LoadFont("assets/fonts/Story Milky.ttf");
     Font myFont2 = LoadFont("assets/fonts/Nexa-Heavy.ttf");
+
     SetTargetFPS(60);
 
-        while (!WindowShouldClose()) {
+    while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -556,85 +558,77 @@ int main(void) {
                     transparente                                             // Cor com transparência
                 );
 
-    
-
         Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
         DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 152}, 70, 2, (Color){0, 0, 0, 200}); // Sombra preta
         DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){11, 143, 170,255}); // Texto azul
 
-        // Definindo cores com base na paleta fornecida
         Color corBotao = (Color){28, 194, 215, 200}; // Azul claro
         Color corTexto = (Color){255, 255, 255, 255}; // Branco
         Color corBorda = (Color){28, 194, 215, 255};
 
-            // Definindo a altura e largura dos botões
-        // Definindo a altura e largura dos botões
         const int botaoLargura = 200;
         const int botaoAltura = 50;
         const int espacoEntreBotoes = 20; // Espaçamento entre os botões
 
-    // Botão Iniciar
-    Rectangle botaoIniciar = {
-        SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-        SCREEN_HEIGHT / 2 - 30, // Mover o botão para cima
-        botaoLargura,
-        botaoAltura
-    };
-    DrawRectangleRounded(botaoIniciar, 0.3f, 16, corBotao);
-    DrawRectangleRoundedLines(botaoIniciar, 0.3f, 16, 2,  corBorda);
-    const char *textoBotaoIniciar = "Iniciar";
-    Vector2 textSizeIniciar = MeasureTextEx(myFont2, textoBotaoIniciar, 30, 2);
-    DrawTextEx(myFont2, textoBotaoIniciar,
-            (Vector2){ botaoIniciar.x + (botaoIniciar.width - textSizeIniciar.x) / 2, botaoIniciar.y + (botaoIniciar.height - textSizeIniciar.y) / 2 },
-            30, 2, corTexto);
+        Rectangle botaoIniciar = {
+            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+            SCREEN_HEIGHT / 2 - 30, // Mover o botão para cima
+            botaoLargura,
+            botaoAltura
+        };
+        DrawRectangleRounded(botaoIniciar, 0.3f, 16, corBotao);
+        DrawRectangleRoundedLines(botaoIniciar, 0.3f, 16, 2,  corBorda);
+        const char *textoBotaoIniciar = "Iniciar";
+        Vector2 textSizeIniciar = MeasureTextEx(myFont2, textoBotaoIniciar, 30, 2);
+        DrawTextEx(myFont2, textoBotaoIniciar,
+                (Vector2){ botaoIniciar.x + (botaoIniciar.width - textSizeIniciar.x) / 2, botaoIniciar.y + (botaoIniciar.height - textSizeIniciar.y) / 2 },
+                30, 2, corTexto);
 
-    // Botão Ranking
-    Rectangle botaoRanking = {
-        SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-        botaoIniciar.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Iniciar
-        botaoLargura,
-        botaoAltura
-    };
-    DrawRectangleRounded(botaoRanking, 0.3f, 16, corBotao);
-    DrawRectangleRoundedLines(botaoRanking, 0.3f, 16, 2, corBorda);
-    const char *textoBotaoRanking = "Ranking";
-    Vector2 textSizeRanking = MeasureTextEx(myFont2, textoBotaoRanking, 30, 2);
-    DrawTextEx(myFont2, textoBotaoRanking,
-            (Vector2){ botaoRanking.x + (botaoRanking.width - textSizeRanking.x) / 2, botaoRanking.y + (botaoRanking.height - textSizeRanking.y) / 2 },
-            30, 2, corTexto);
+        // Botão Ranking
+        Rectangle botaoRanking = {
+            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+            botaoIniciar.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Iniciar
+            botaoLargura,
+            botaoAltura
+        };
+        DrawRectangleRounded(botaoRanking, 0.3f, 16, corBotao);
+        DrawRectangleRoundedLines(botaoRanking, 0.3f, 16, 2, corBorda);
+        const char *textoBotaoRanking = "Ranking";
+        Vector2 textSizeRanking = MeasureTextEx(myFont2, textoBotaoRanking, 30, 2);
+        DrawTextEx(myFont2, textoBotaoRanking,
+                (Vector2){ botaoRanking.x + (botaoRanking.width - textSizeRanking.x) / 2, botaoRanking.y + (botaoRanking.height - textSizeRanking.y) / 2 },
+                30, 2, corTexto);
 
-    // Botão Instruções
-    Rectangle botaoInstrucoes = {
-        SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-        botaoRanking.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Ranking
-        botaoLargura,
-        botaoAltura
-    };
-    DrawRectangleRounded(botaoInstrucoes, 0.3f, 16, corBotao);
-    DrawRectangleRoundedLines(botaoInstrucoes, 0.3f, 16, 2, corBorda);
-    const char *textoBotaoInstrucoes = "Como Jogar";
-    Vector2 textSizeInstrucoes = MeasureTextEx(myFont2, textoBotaoInstrucoes, 30, 2);
-    DrawTextEx(myFont2, textoBotaoInstrucoes,
-            (Vector2){ botaoInstrucoes.x + (botaoInstrucoes.width - textSizeInstrucoes.x) / 2, botaoInstrucoes.y + (botaoInstrucoes.height - textSizeInstrucoes.y) / 2 },
-            30, 2, corTexto);
+        // Botão Instruções
+        Rectangle botaoInstrucoes = {
+            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+            botaoRanking.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Ranking
+            botaoLargura,
+            botaoAltura
+        };
+        DrawRectangleRounded(botaoInstrucoes, 0.3f, 16, corBotao);
+        DrawRectangleRoundedLines(botaoInstrucoes, 0.3f, 16, 2, corBorda);
+        const char *textoBotaoInstrucoes = "Como Jogar";
+        Vector2 textSizeInstrucoes = MeasureTextEx(myFont2, textoBotaoInstrucoes, 30, 2);
+        DrawTextEx(myFont2, textoBotaoInstrucoes,
+                (Vector2){ botaoInstrucoes.x + (botaoInstrucoes.width - textSizeInstrucoes.x) / 2, botaoInstrucoes.y + (botaoInstrucoes.height - textSizeInstrucoes.y) / 2 },
+                30, 2, corTexto);
 
-    // Botão Sair
-    Rectangle botaoSair = {
-        SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-        botaoInstrucoes.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Instruções
-        botaoLargura,
-        botaoAltura
-    };
-    DrawRectangleRounded(botaoSair, 0.3f, 16, corBotao);
-    DrawRectangleRoundedLines(botaoSair, 0.3f, 16, 2, corBorda);
-    const char *textoBotaoSair = "Sair";
-    Vector2 textSizeSair = MeasureTextEx(myFont2, textoBotaoSair, 30, 2);
-    DrawTextEx(myFont2, textoBotaoSair,
-            (Vector2){ botaoSair.x + (botaoSair.width - textSizeSair.x) / 2, botaoSair.y + (botaoSair.height - textSizeSair.y) / 2 },
-            30, 2, corTexto);
+        // Botão Sair
+        Rectangle botaoSair = {
+            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
+            botaoInstrucoes.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Instruções
+            botaoLargura,
+            botaoAltura
+        };
+        DrawRectangleRounded(botaoSair, 0.3f, 16, corBotao);
+        DrawRectangleRoundedLines(botaoSair, 0.3f, 16, 2, corBorda);
+        const char *textoBotaoSair = "Sair";
+        Vector2 textSizeSair = MeasureTextEx(myFont2, textoBotaoSair, 30, 2);
+        DrawTextEx(myFont2, textoBotaoSair,
+                (Vector2){ botaoSair.x + (botaoSair.width - textSizeSair.x) / 2, botaoSair.y + (botaoSair.height - textSizeSair.y) / 2 },
+                30, 2, corTexto);
 
-        
-        // Verificar cliques
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoIniciar)) {
@@ -658,7 +652,7 @@ int main(void) {
         }
     }
 
-    else if(telaNome) {
+    else if (telaNome) {
 
         const int botaoLargura = 200;
         const int botaoAltura = 50;
@@ -798,36 +792,36 @@ int main(void) {
                 }
             }
             fclose(arquivo);
-    }
+        }
 
-    Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
+        Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-    // Desenhar o botão arredondado
-    DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
-    DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
+        // Desenhar o botão arredondado
+        DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
+        DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
 
-    // Texto do botão
-    const char *textoVoltar = "Voltar";
-    float fontSizeVoltar = 20; // Tamanho da fonte
-    float spacingVoltar = 2;    // Espaçamento entre letras
+        // Texto do botão
+        const char *textoVoltar = "Voltar";
+        float fontSizeVoltar = 20; // Tamanho da fonte
+        float spacingVoltar = 2;    // Espaçamento entre letras
 
-    Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
+        Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
 
-    Vector2 textPosVoltar = (Vector2){
-        botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
-        botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
-    };
+        Vector2 textPosVoltar = (Vector2){
+            botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
+            botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
+        };
 
     // Desenhar o texto do botão "Voltar"
-    DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
+        DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
-    // Verifica se o usuário clicou no botão de Voltar
-    if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
-        telaInicial = true;
+        // Verifica se o usuário clicou no botão de Voltar
+        if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+            telaInicial = true;
+        }
+
     }
-
-            }
 
     else if (telaInstrucoes) {
         float startY = 120;  // Subindo a posição inicial para o texto das instruções
@@ -921,11 +915,11 @@ int main(void) {
 
         if (coletarPowerUp(player, &headPowerUp, &head)) {
             mostrarMensagem = true;
-            tempoMensagem = 300;  // Exibe a mensagem por 2 segundos
+            tempoMensagem = 300; 
         }
 
         atualizarImunidade();
-        desenharPowerUps(headPowerUp);
+        desenharPowerUps(headPowerUp, powerUpTexture);
 
         if (mostrarMensagem) {
             DrawTextEx(myFont2, "Power-up capturado! Imunidade ativada por 5 segundos!", (Vector2){90, 50}, 20, 0, RED);
@@ -1062,7 +1056,7 @@ int main(void) {
 
         tempoInicial = GetTime();
         Color backgroundColor = (Color){173, 216, 230, 255};
-        const char *mensagem = vitoria ? "Parabens! Todos os lixos do mar foram coletados!" : "Fim de jogo!";
+        const char *mensagem = vitoria ? "Parabens! Todos os lixos do mar foram coletados!" : "Voce foi pego pelos tubaroes :(. Fim de jogo!";
         Vector2 textSize = MeasureTextEx(myFont2, mensagem, 30, 2);
         Vector2 textPos = (Vector2){
             (SCREEN_WIDTH - textSize.x) / 2,
@@ -1171,7 +1165,8 @@ int main(void) {
                 reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
                 telaInicial = true;
             }
-        }}
+        }
+    }
 
         EndDrawing();
     }
@@ -1186,6 +1181,7 @@ int main(void) {
     UnloadTexture(banhistaLeft);    
     UnloadTexture(banhistaRight);
     UnloadTexture(banhistaUp);
+    UnloadTexture(powerUpTexture);
     UnloadTexture(lixo1);
     UnloadTexture(lixo2);
     UnloadTexture(lixo3);    
