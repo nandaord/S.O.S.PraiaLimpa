@@ -30,15 +30,18 @@ Instalar a Raylib (biblioteca utilizada para a interface gráfica do jogo):
 
 ### Em Linux (Debian/Ubuntu):
 Atualize os pacotes:
-**sudo apt update**
+
+      sudo apt update
 &nbsp;
 
 Instale a Raylib:
-**sudo apt install libraylib-dev**
+
+    sudo apt install libraylib-dev
 &nbsp;
 
 Verifique a instalação para garantir que a Raylib foi instalada corretamente:
-**pkg-config --libs --cflags raylib**
+
+    pkg-config --libs --cflags raylib
 &nbsp;
 
 Esse comando deve retornar os caminhos e flags de compilação da Raylib, indicando que ela está pronta para uso.
@@ -58,8 +61,20 @@ Extraia os arquivos em uma pasta de fácil acesso, como C:\raylib.
 ## Como executar:
 1. Entre no diretório jogoAED. Todos os comandos de compilação e execução do jogo devem ser executados a partir desse diretório, pois ele contém os arquivos e as configurações necessárias
 2. O diretório aberto na IDE deve ser o citado acima, não funciona se entrar nele apenas pelo terminal
-3.  Aperte F5 para rodar
-4.  Em caso de erro, feche a aba da IDE (aconselha-se o Visual Studio Code) e abra novamente, depois repita o comando.
+3. Aperte F5 para rodar
+4. Outra maneira de iniciar o jogo é pelo terminal, digitando os comandos diretamente no diretório jogoAED:
+  &nbsp;
+
+4.1 Para compilar: 
+
+        mingw32-make.exe RAYLIB_PATH=C:/raylib/raylib PLATFORM=PLATFORM_DESKTOP BUILD_MODE=RELEASE PROJECT_NAME=main OBJS=main.c
+  
+4.2 Para executar:
+  
+         ./main.exe
+ 
+5. Em caso de erro em ambos os casos, feche a aba da IDE (aconselha-se o Visual Studio Code) e abra novamente, depois repita o comando.
+   
 
 
 
