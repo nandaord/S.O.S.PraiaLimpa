@@ -100,7 +100,7 @@ bool posicaoEmBarreira(Vector2 posicao, Barreira* barreiras, int numBarreiras) {
         return false;
 }
 
-bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
+bool coletarPowerUp(Player player, PowerUp** headPowerUp) {
     PowerUp* powerUpAtual = *headPowerUp;
     PowerUp* anterior = NULL;
 
@@ -981,7 +981,7 @@ int main(void) {
             vitoria = true;
         }
 
-        if (coletarPowerUp(player, &headPowerUp, &head)) {
+        if (coletarPowerUp(player, &headPowerUp)) {
             mostrarMensagem = true;
             tempoMensagem = 300; 
         }
