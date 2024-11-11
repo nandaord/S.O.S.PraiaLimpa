@@ -16,15 +16,49 @@ A meta é recolher todos os detritos presentes, deixando o mar limpo e incentiva
 
 ## Como jogar:
 
-1 - Use as setas para mover o personagem entre as barreiras de corais
+1. Use as setas para mover o personagem entre as barreiras de corais
 
-2 - Seu objetivo será coletar todos os lixos do mar sem ser capturado pelos tubarões
+2. Seu objetivo será coletar todos os lixos do mar sem ser capturado pelos tubarões
 
-3 - Powerups podem aparecer a qualquer momento, se coletá-lo você ganha imortalidade por 5 segundos
+3. Powerups podem aparecer a qualquer momento, se coletá-lo você ganha imortalidade por 5 segundos
 
-4 - Se você coletar todos os lixos, vencerá e poderá consultar o ranking dos jogadores
+4. Se você coletar todos os lixos, vencerá e poderá consultar o ranking dos jogadores
 
-## Como executar
+## Instruções antes de executar:
+- Instalar a Raylib:
+&nbsp;
+
+### Em Linux (Debian/Ubuntu):
+Atualize os pacotes:
+**sudo apt update**
+&nbsp;
+
+Instale a Raylib:
+**sudo apt install libraylib-dev**
+&nbsp;
+
+Verifique a instalação para garantir que a Raylib foi instalada corretamente:
+**pkg-config --libs --cflags raylib**
+&nbsp;
+
+Esse comando deve retornar os caminhos e flags de compilação da Raylib, indicando que ela está pronta para uso.
+&nbsp;
+&nbsp;
+
+### Em Windows:
+Acesse o site oficial da Raylib.
+&nbsp;
+
+Baixe o pacote adequado para MinGW/GCC.
+&nbsp;
+
+Extraia os arquivos em uma pasta de fácil acesso, como C:\raylib.
+&nbsp;
+
+## Como executar:
+1. Entre no diretório do jogo no seu computador
+2.  Aperte F5 para rodar
+3.  Em caso de erro, feche a aba da IDE (aconselha-se o Visual Studio Code) e abra novamente, depois repita o comando.
 
 
 
