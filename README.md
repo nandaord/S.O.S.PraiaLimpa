@@ -32,17 +32,14 @@ Instalar a Raylib (biblioteca utilizada para a interface gráfica do jogo):
 Atualize os pacotes:
 
       sudo apt update
-&nbsp;
 
 Instale a Raylib:
 
     sudo apt install libraylib-dev
-&nbsp;
 
 Verifique a instalação para garantir que a Raylib foi instalada corretamente:
 
     pkg-config --libs --cflags raylib
-&nbsp;
 
 Esse comando deve retornar os caminhos e flags de compilação da Raylib, indicando que ela está pronta para uso.
 &nbsp;
