@@ -56,9 +56,10 @@ Extraia os arquivos em uma pasta de fácil acesso, como C:\raylib.
 &nbsp;
 
 ## Como executar:
-1. Entre no diretório do jogo no seu computador
-2.  Aperte F5 para rodar
-3.  Em caso de erro, feche a aba da IDE (aconselha-se o Visual Studio Code) e abra novamente, depois repita o comando.
+1. Entre no diretório jogoAED. Todos os comandos de compilação e execução do jogo devem ser executados a partir desse diretório, pois ele contém os arquivos e as configurações necessárias
+2. O diretório aberto na IDE deve ser o citado acima, não funciona se for apenas pelo terminal
+3.  Aperte F5 para rodar
+4.  Em caso de erro, feche a aba da IDE (aconselha-se o Visual Studio Code) e abra novamente, depois repita o comando.
 
 
 
