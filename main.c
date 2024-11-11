@@ -17,7 +17,7 @@
 #define SAFE_ZONE_THRESHOLD 100  
 #define SEPARATION_DISTANCE 80
 #define NUM_ITEMS 5
-#define MAX_POWERUPS 2
+#define MAX_POWERUPS 1
 #define TEMPO_IMUNIDADE 1000
 #define DISTANCIA_MINIMA_BARRREIRA 30 
 
@@ -129,7 +129,7 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
 }
 
 void gerarPowerup(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
-    int intervaloPowerUp = 60;
+    int intervaloPowerUp = 1000;
 
     // Verifica se já atingimos o limite de dois power-ups totais
     if (powerUpsGeradosTotal >= 2) return;
@@ -427,22 +427,25 @@ bool verificaColisaoBarreira(Player player, Barreira barreira) {
 void inicializarBarreiras(Barreira* barreiras, int* numBarreiras) {
 
     *numBarreiras = 7;
-    barreiras[0].rect = (Rectangle){ 92, 146, 56, 300 }; // Barreira vertical
-    barreiras[1].rect = (Rectangle){ 220, 299, 131, 56 }; // Barreira horizontal
-    barreiras[2].rect = (Rectangle){ 298, 446, 203, 56 }; // Barreira vertical
-    barreiras[3].rect = (Rectangle){ 238, 69, 252, 56 }; // Barreira horizontal
-    barreiras[4].rect = (Rectangle){ 560, 195, 56, 200 }; // Vertical direita
+    barreiras[0].rect = (Rectangle){ 92, 146, 30, 300 }; // Barreira vertical
+    barreiras[1].rect = (Rectangle){ 220, 299, 131, 30 }; // Barreira horizontal
 
-    barreiras[5].rect = (Rectangle){ 608, 32, 131, 56 };  // Vertical pequena no canto superior direito
+    barreiras[2].rect = (Rectangle){ 298, 446, 203, 30 }; // Barreira vertical
+    barreiras[3].rect = (Rectangle){ 238, 69, 252, 30 }; // Barreira horizontal
+    barreiras[4].rect = (Rectangle){ 560, 195, 30, 200 }; // Vertical direita
+
+    barreiras[5].rect = (Rectangle){ 608, 32, 131, 30 };  // Vertical pequena no canto superior direito
 
     // Barreira na parte superior direita
-    barreiras[6].rect = (Rectangle){ 637, 530, 131, 56 }; 
+    barreiras[6].rect = (Rectangle){ 637, 530, 131, 30 }; 
 }
 
-void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D coralTexture) {
-        float escalaVisual = 4.0; // Ajuste este valor para o tamanho visual desejado das barreiras
+void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D barreira1, Texture2D barreira2) {
+    float escalaVisual = 4.0; // Ajuste este valor para o tamanho visual desejado das barreiras
 
     for (int i = 0; i < numBarreiras; i++) {
+        Texture2D texturaAtual = (i == 0 || i == 4) ? barreira2 : barreira1; // Usa 'barreira2' para as barreiras[0] e barreiras[4]
+
         Rectangle destRect = {
             barreiras[i].rect.x - (barreiras[i].rect.width * (escalaVisual - 1)) / 2,
             barreiras[i].rect.y - (barreiras[i].rect.height * (escalaVisual - 1)) / 2,
@@ -450,12 +453,13 @@ void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D coralTex
             barreiras[i].rect.height * escalaVisual
         };
 
-        Rectangle sourceRect = (Rectangle){ 0, 0, coralTexture.width, coralTexture.height };
+        Rectangle sourceRect = { 0, 0, texturaAtual.width, texturaAtual.height };
 
-        // Desenha a textura do coral com a escala visual maior
-        DrawTexturePro(coralTexture, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+        // Desenha a textura com a escala visual maior
+        DrawTexturePro(texturaAtual, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
     }
-}    
+}
+ 
 
 void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
     Jogador jogadores[100];
@@ -529,7 +533,9 @@ int main(void) {
     Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
     Texture2D fundoJogo = LoadTexture("assets/background/background.png");
     Texture2D powerUpTexture = LoadTexture("assets/powerUp/pocaoVermelha.png");
-    Texture2D corais = LoadTexture("assets/barreiras/barreira1.png");
+    Texture2D barreira1 = LoadTexture("assets/barreiras/barreira1.png");
+    Texture2D barreira2 = LoadTexture("assets/barreiras/barreira2.png");
+
 
     Texture2D banhistaUp = LoadTexture("assets/characters/banhistaCima.png");
     Texture2D banhistaDown = LoadTexture("assets/characters/banhistaBaixo.png");
@@ -1085,7 +1091,7 @@ int main(void) {
             temp = temp->prox;
         }
 
-        desenharBarreiras(barreiras, numBarreiras, corais);
+        desenharBarreiras(barreiras, numBarreiras, barreira1,barreira2);
 
         Lixo* aux = lixo;
         int i = 1;
@@ -1257,7 +1263,8 @@ int main(void) {
     UnloadTexture(lixo3);    
     UnloadTexture(lixo4);
     UnloadTexture(lixo5);
-    UnloadTexture(corais);
+    UnloadTexture(barreira1);
+    UnloadTexture(barreira2);
     
     CloseWindow();
     return 0;
