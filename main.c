@@ -181,21 +181,26 @@ void atualizarImunidade() {
 }
 
 void ordenarLixosPorPosicaoY(Lixo** head) {
+    if (head == NULL || *head == NULL) return;
+
     Lixo* atual = *head;
-    Lixo* prox;
 
+    // Laço externo percorre cada elemento da lista a partir do início
     while (atual != NULL) {
-        prox = atual->prox;
-        int j = 0;
+        Lixo* prox = atual->prox;
 
-        while (prox != NULL && prox->posicao.y < atual->posicao.y && j > 0) {
-            Vector2 aux = atual->posicao;
-            atual->posicao = prox->posicao;
-            prox->posicao = aux;
-            prox = atual->prox;
-            j--;
+        // Laço interno percorre todos os elementos após `atual`
+        while (prox != NULL) {
+            // Se encontrar um `prox` com y menor, troca as posições
+            if (prox->posicao.y < atual->posicao.y) {
+                Vector2 aux = atual->posicao;
+                atual->posicao = prox->posicao;
+                prox->posicao = aux;
+            }
+            prox = prox->prox;  // Avança para o próximo elemento em relação a `prox`
         }
-        atual = atual->prox;
+
+        atual = atual->prox;  // Avança para o próximo elemento em relação a `atual`
     }
 }
 
