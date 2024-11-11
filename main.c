@@ -134,16 +134,8 @@ void gerarPowerup(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) 
     // Verifica se já atingimos o limite de dois power-ups totais
     if (powerUpsGeradosTotal >= 1) return;
 
-    // Contar o número de power-ups ativos atualmente
-    int powerUpsAtivos = 0;
-    PowerUp* temp = *headPowerUp;
-    while (temp != NULL) {
-        if (temp->ativo) powerUpsAtivos++;
-        temp = temp->prox;
-    }
-
     // Gera um novo power-up se o intervalo foi alcançado e se o total não excede o limite
-    if (powerUpsAtivos < MAX_POWERUPS && contadorTempoPowerUp >= intervaloPowerUp) {
+    if (contadorTempoPowerUp >= intervaloPowerUp) {
         Vector2 posicao;
 
         // Gera uma posição fora das barreiras
