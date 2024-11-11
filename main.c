@@ -30,7 +30,7 @@ bool jogadorImune = false;
 int tempoImunidadeRestante = 0;   
 float tempoInicial = 0.0f;
 float tempoDecorrido = 0.0f;
-
+int powerUpsGeradosTotal = 0;
 
 typedef struct {
     Vector2 posicao;
@@ -101,10 +101,19 @@ bool posicaoEmBarreira(Vector2 posicao, Barreira* barreiras, int numBarreiras) {
 }
 
 bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
-  if (*headPowerUp != NULL) {
-        PowerUp* powerUpAtual = *headPowerUp;
+    PowerUp* powerUpAtual = *headPowerUp;
+    PowerUp* anterior = NULL;
+
+    while (powerUpAtual != NULL) {
         if (powerUpAtual->ativo && calcularDistancia(player.posicao, powerUpAtual->posicao) < PLAYER_SIZE) {
-            popPowerUp(headPowerUp);  // Remove o power-up da pilha
+            // Remove o power-up da lista ao coletá-lo
+            if (anterior == NULL) {
+                popPowerUp(headPowerUp);  // Remove o primeiro elemento
+            } else {
+                anterior->prox = powerUpAtual->prox;
+                free(powerUpAtual);
+            }
+
             powerUpsCapturados++;
 
             // Ativa imunidade e define tempo restante
@@ -113,6 +122,8 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
 
             return true;  // Power-up coletado com sucesso
         }
+        anterior = powerUpAtual;
+        powerUpAtual = powerUpAtual->prox;
     }
     return false;
 }
@@ -120,21 +131,33 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
 void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
     int intervaloPowerUp = 60;
 
-    if (powerUpsGerados < MAX_POWERUPS  && contadorTempoPowerUp >= intervaloPowerUp) {  // Probabilidade baixa de aparecer
+    // Verifica se já atingimos o limite de dois power-ups totais
+    if (powerUpsGeradosTotal >= 2) return;
+
+    // Contar o número de power-ups ativos atualmente
+    int powerUpsAtivos = 0;
+    PowerUp* temp = *headPowerUp;
+    while (temp != NULL) {
+        if (temp->ativo) powerUpsAtivos++;
+        temp = temp->prox;
+    }
+
+    // Gera um novo power-up se o intervalo foi alcançado e se o total não excede o limite
+    if (powerUpsAtivos < MAX_POWERUPS && contadorTempoPowerUp >= intervaloPowerUp) {
         Vector2 posicao;
-         // Tenta gerar uma posição fora das barreiras
-        // do {
+
+        // Gera uma posição fora das barreiras
+        do {
             posicao = (Vector2){ GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50) };
-        // } while (posicaoEmBarreira(posicao, barreiras, numBarreiras));
-        
-        pushPowerUp(headPowerUp, posicao);
-        powerUpsGerados++;
-        contadorTempoPowerUp = 0;
+        } while (posicaoEmBarreira(posicao, barreiras, numBarreiras));
+
+        pushPowerUp(headPowerUp, posicao); // Adiciona o novo power-up
+        contadorTempoPowerUp = 0;          // Reseta o contador para o próximo intervalo
+        powerUpsGeradosTotal++;            // Incrementa o total de power-ups gerados
     }
 
     contadorTempoPowerUp++;
 }
-
 void desenharPowerUps(PowerUp* head, Texture2D powerUpTexture) {
     PowerUp* temp = head;
     while (temp != NULL) {
@@ -155,7 +178,6 @@ void atualizarImunidade() {
         }
     }
 }
-
 
 void ordenarLixosPorPosicaoY(Lixo** head) {
     Lixo* atual = *head;
@@ -470,23 +492,30 @@ bool nomeExiste(const char *nome) {
     FILE *arquivo = fopen("ranking.txt", "r");
     if (!arquivo) return false;
 
+    char nomeComEspaco[21];
+    snprintf(nomeComEspaco,sizeof(nomeComEspaco),"%s ",nome);
+
     char linha[256];
+    char nomeArquivo[20];
+    float tempoArquivo;
+
     while (fgets(linha, sizeof(linha), arquivo)) {
         // Verifica se a linha contém o nome do jogador
-        if (strstr(linha, nome) != NULL) {
-            fclose(arquivo);
-            return true; // Nome já existe
+        sscanf(linha, "Nome: %[^|] | Tempo: %f segundos", nomeArquivo, &tempoArquivo);
+        if (strcmp(nomeArquivo, nomeComEspaco) == 0) {
+                fclose(arquivo); // Fecha o arquivo antes de retornar
+                return true;
+            }
         }
-    }
     fclose(arquivo);
-    return false; // Nome não existe
+    return false;
 }
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
     Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
-    Texture2D fundoJogo = LoadTexture("assets/background/Captura de tela 2024-11-05 170948.png");
+    Texture2D fundoJogo = LoadTexture("assets/background/background.png");
     Texture2D powerUpTexture = LoadTexture("assets/powerUp/pocaoVermelha.png");
 
     Texture2D banhistaUp = LoadTexture("assets/characters/banhistaCima.png");
@@ -514,7 +543,6 @@ int main(void) {
     Tubarao* head = NULL;
     PowerUp* headPowerUp = NULL;
     Lixo *lixo = NULL;
-
 
     inicializarTubarao(&head, 5, player);
 
@@ -928,9 +956,8 @@ int main(void) {
         DrawTextEx(myFont2, TextFormat("Tempo decorrido: %.2f segundos", tempoDecorrido), (Vector2){10, 10}, 20, 0, BLACK);
 
         moverJogador(&player);
-        gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
-        verificarColetaItens(player, lixo);
 
+        verificarColetaItens(player, lixo);
         if (todosItensColetados(lixo)) {
             vitoria = true;
         }
@@ -939,7 +966,7 @@ int main(void) {
             mostrarMensagem = true;
             tempoMensagem = 300; 
         }
-
+        gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
         atualizarImunidade();
         desenharPowerUps(headPowerUp, powerUpTexture);
 
