@@ -132,7 +132,7 @@ void gerarPowerup(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) 
     int intervaloPowerUp = 1000;
 
     // Verifica se já atingimos o limite de dois power-ups totais
-    if (powerUpsGeradosTotal >= 2) return;
+    if (powerUpsGeradosTotal >= 1) return;
 
     // Contar o número de power-ups ativos atualmente
     int powerUpsAtivos = 0;
