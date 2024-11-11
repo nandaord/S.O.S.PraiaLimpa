@@ -47,7 +47,8 @@ Esse comando deve retornar os caminhos e flags de compilação da Raylib, indica
 
 ### Em Windows:
 Acesse o site oficial da Raylib.
-&nbsp;
+
+            https://www.raylib.com/
 
 Baixe o pacote adequado para MinGW/GCC.
 &nbsp;
