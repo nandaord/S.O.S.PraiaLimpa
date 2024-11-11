@@ -25,7 +25,7 @@ A meta é recolher todos os detritos presentes, deixando o mar limpo e incentiva
 4. Se você coletar todos os lixos, vencerá e poderá consultar o ranking dos jogadores
 
 ## Instruções antes de executar:
-- Instalar a Raylib:
+Instalar a Raylib (biblioteca utilizada para a interface gráfica do jogo):
 &nbsp;
 
 ### Em Linux (Debian/Ubuntu):
