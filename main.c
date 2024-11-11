@@ -306,6 +306,9 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     powerUpsCapturados = 0;
     contadorTempoPowerUp = 0;
 
+    jogadorImune = false;
+    tempoImunidadeRestante = 0;
+
     // Limpar o nome do jogador e permitir reentrada
     nomeJogador[0] = '\0';
     *caractereAtual = 0;
