@@ -35,7 +35,7 @@ int powerUpsGeradosTotal = 0;
 typedef struct {
     Vector2 posicao;
     float speed;
-} Player;
+} Player; 
 
 typedef struct Tubarao {
     Vector2 posicao;
