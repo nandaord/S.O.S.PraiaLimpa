@@ -417,8 +417,6 @@ void moverTubaraoAleatoriamente(Tubarao* head) {
     forcaSeparacaoTubaroes(head);
 }
 
-
-
 // Função para verificar colisões entre o jogador e barreiras
 bool verificaColisaoBarreira(Player player, Barreira barreira) {
     return CheckCollisionCircleRec(player.posicao, PLAYER_SIZE, barreira.rect);
@@ -438,12 +436,24 @@ void inicializarBarreiras(Barreira* barreiras, int* numBarreiras) {
     barreiras[6].rect = (Rectangle){ 637, 530, 131, 56 }; 
 }
 
+void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D coralTexture) {
+        float escalaVisual = 4.0; // Ajuste este valor para o tamanho visual desejado das barreiras
 
-void desenharBarreiras(Barreira* barreiras, int numBarreiras) {
     for (int i = 0; i < numBarreiras; i++) {
-        DrawRectangleRec(barreiras[i].rect, PURPLE);
+        Rectangle destRect = {
+            barreiras[i].rect.x - (barreiras[i].rect.width * (escalaVisual - 1)) / 2,
+            barreiras[i].rect.y - (barreiras[i].rect.height * (escalaVisual - 1)) / 2,
+            barreiras[i].rect.width * escalaVisual,
+            barreiras[i].rect.height * escalaVisual
+        };
+
+        Rectangle sourceRect = (Rectangle){ 0, 0, coralTexture.width, coralTexture.height };
+
+        // Desenha a textura do coral com a escala visual maior
+        DrawTexturePro(coralTexture, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
     }
-}
+}    
+
 
 void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
     Jogador jogadores[100];
@@ -517,6 +527,7 @@ int main(void) {
     Texture2D background = LoadTexture("assets/background/Captura de tela 2024-11-05 092632.png");
     Texture2D fundoJogo = LoadTexture("assets/background/background.png");
     Texture2D powerUpTexture = LoadTexture("assets/powerUp/pocaoVermelha.png");
+    Texture2D corais = LoadTexture("assets/barreiras/barreira1.png");
 
     Texture2D banhistaUp = LoadTexture("assets/characters/banhistaCima.png");
     Texture2D banhistaDown = LoadTexture("assets/characters/banhistaBaixo.png");
@@ -1072,7 +1083,7 @@ int main(void) {
             temp = temp->prox;
         }
 
-        desenharBarreiras(barreiras, numBarreiras);
+        desenharBarreiras(barreiras, numBarreiras, corais);
 
         Lixo* aux = lixo;
         int i = 1;
@@ -1244,6 +1255,7 @@ int main(void) {
     UnloadTexture(lixo3);    
     UnloadTexture(lixo4);
     UnloadTexture(lixo5);
+    UnloadTexture(corais);
     
     CloseWindow();
     return 0;
