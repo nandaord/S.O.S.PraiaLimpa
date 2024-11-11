@@ -128,7 +128,7 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp, Tubarao** tubaroes) {
     return false;
 }
 
-void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
+void gerarPowerup(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
     int intervaloPowerUp = 60;
 
     // Verifica se já atingimos o limite de dois power-ups totais
@@ -158,6 +158,7 @@ void gerarPowerUpAleatorio(PowerUp** headPowerUp, Barreira* barreiras, int numBa
 
     contadorTempoPowerUp++;
 }
+
 void desenharPowerUps(PowerUp* head, Texture2D powerUpTexture) {
     PowerUp* temp = head;
     while (temp != NULL) {
@@ -240,7 +241,6 @@ bool todosItensColetados(Lixo* head) {
     }
     return true;
 }
-
 // Função para liberar a memória alocada para os itens ao reiniciar o jogo
 void liberarItens(Lixo** head) {
     Lixo* temp = *head;
@@ -286,7 +286,7 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
     }
 }
 
-void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade, Barreira* barreiras, int numBarreiras, char* nomeJogador, int* caractereAtual, bool* adicionouAoRanking) {
+void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade, Barreira* barreiras, int numBarreiras, char* nomeJogador, int* caractereAtual, bool* adicionouAoRanking, PowerUp **headPowerUp) {
     // Reiniciar posição do jogador
     player->posicao = (Vector2){100, 100};
     *gameOver = false;
@@ -302,6 +302,7 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     // Resetar os power-ups
     tempoDesdeUltimoTubarao = 0;
     powerUpsGerados = 0;
+    powerUpsGeradosTotal = 0;
     powerUpsCapturados = 0;
     contadorTempoPowerUp = 0;
 
@@ -309,6 +310,9 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     nomeJogador[0] = '\0';
     *caractereAtual = 0;
 
+    while (*headPowerUp != NULL) {
+        popPowerUp(headPowerUp);  // Remove cada power-up até a lista estar vazia
+    }
     // Liberar tubarões e itens coletados
     Tubarao* aux = *head;
     while (aux != NULL) {
@@ -322,7 +326,6 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
     liberarItens(lixo);
     inicializarItens(lixo, barreiras, numBarreiras);
 }
-
 
 void forcaSeparacaoTubaroes(Tubarao* head) {
     Tubarao* temp = head;
@@ -453,7 +456,6 @@ void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D coralTex
         DrawTexturePro(coralTexture, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
     }
 }    
-
 
 void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
     Jogador jogadores[100];
@@ -874,7 +876,7 @@ int main(void) {
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking, &headPowerUp);
                 telaInicial = true;
             }    
         }
@@ -953,7 +955,7 @@ int main(void) {
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking, &headPowerUp);
                 telaInicial = true;
             }    
         }
@@ -977,7 +979,7 @@ int main(void) {
             mostrarMensagem = true;
             tempoMensagem = 300; 
         }
-        gerarPowerUpAleatorio(&headPowerUp, barreiras, numBarreiras);
+        gerarPowerup(&headPowerUp, barreiras, numBarreiras);
         atualizarImunidade();
         desenharPowerUps(headPowerUp, powerUpTexture);
 
@@ -1221,7 +1223,7 @@ int main(void) {
             if (CheckCollisionPointRec(mousePos, botaoReiniciar)){
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking);
+                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras,nomeJogador, &caractereAtual, &adicionouAoRanking, &headPowerUp);
                     telaNome = true;
                     telaInicial = false;
                 }    
@@ -1229,7 +1231,7 @@ int main(void) {
             else if (CheckCollisionPointRec(mousePos, botaoVoltar)){
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking);
+                    reiniciarJogo(&player, &head, &lixo, &gameOver, &vitoria, &telaInicial, &aumentoVelocidade, barreiras, numBarreiras, nomeJogador, &caractereAtual, &adicionouAoRanking, &headPowerUp);
                     telaInicial = true;
                 }    
             }
