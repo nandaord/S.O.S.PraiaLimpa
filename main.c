@@ -981,13 +981,16 @@ int main(void) {
             vitoria = true;
         }
 
+        gerarPowerup(&headPowerUp, barreiras, numBarreiras);
+        desenharPowerUps(headPowerUp, powerUpTexture);
+        
         if (coletarPowerUp(player, &headPowerUp)) {
             mostrarMensagem = true;
             tempoMensagem = 300; 
         }
-        gerarPowerup(&headPowerUp, barreiras, numBarreiras);
+        
         atualizarImunidade();
-        desenharPowerUps(headPowerUp, powerUpTexture);
+        
 
         if (mostrarMensagem) {
             DrawTextEx(myFont2, "Power-up capturado! Imunidade ativada por 5 segundos!", (Vector2){90, 50}, 20, 0, RED);
