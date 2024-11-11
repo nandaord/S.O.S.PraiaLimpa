@@ -57,7 +57,7 @@ Extraia os arquivos em uma pasta de fácil acesso, como C:\raylib.
 &nbsp;
 
 ## Como executar:
-1. Entre no diretório jogoAED. Todos os comandos de compilação e execução do jogo devem ser executados a partir desse diretório, pois ele contém os arquivos e as configurações necessárias
+1. Entre no diretório **jogoAED**. Todos os comandos de compilação e execução do jogo devem ser executados a partir desse diretório, pois ele contém os arquivos e as configurações necessárias
 2. O diretório aberto na IDE deve ser o citado acima, não funciona se entrar nele apenas pelo terminal
 3. Aperte F5 para rodar
 4. Outra maneira de iniciar o jogo é pelo terminal, digitando os comandos diretamente no diretório jogoAED:
