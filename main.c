@@ -476,6 +476,17 @@ bool nomeExiste(const char *nome) {
     return false;
 }
 
+void DrawButton(Rectangle *botao, const char *texto, Font fonte, Color corBotao, Color corBorda, Color corTexto, float fontSize, float spacing) {
+    DrawRectangleRounded(*botao, 0.3f, 16, corBotao);
+    DrawRectangleRoundedLines(*botao, 0.3f, 16, 2, corBorda);
+    
+    Vector2 textSize = MeasureTextEx(fonte, texto, fontSize, spacing);
+    
+    DrawTextEx(fonte, texto,
+               (Vector2){ botao->x + (botao->width - textSize.x) / 2, botao->y + (botao->height - textSize.y) / 2 },
+               fontSize, spacing, corTexto);
+}
+
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "S.O.S. Praia Limpa!");
 
@@ -558,10 +569,6 @@ int main(void) {
         DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 152}, 70, 2, (Color){0, 0, 0, 200});
         DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){11, 143, 170,255}); 
 
-        Color corBotao = (Color){28, 194, 215, 200}; 
-        Color corTexto = (Color){255, 255, 255, 255};
-        Color corBorda = (Color){28, 194, 215, 255};
-
         const int botaoLargura = 200;
         const int botaoAltura = 50;
         const int espacoEntreBotoes = 20; 
@@ -572,27 +579,17 @@ int main(void) {
             botaoLargura,
             botaoAltura
         };
-        DrawRectangleRounded(botaoIniciar, 0.3f, 16, corBotao);
-        DrawRectangleRoundedLines(botaoIniciar, 0.3f, 16, 2,  corBorda);
-        const char *textoBotaoIniciar = "Iniciar";
-        Vector2 textSizeIniciar = MeasureTextEx(myFont2, textoBotaoIniciar, 30, 2);
-        DrawTextEx(myFont2, textoBotaoIniciar,
-                (Vector2){ botaoIniciar.x + (botaoIniciar.width - textSizeIniciar.x) / 2, botaoIniciar.y + (botaoIniciar.height - textSizeIniciar.y) / 2 },
-                30, 2, corTexto);
+        
+        DrawButton(&botaoIniciar, "Iniciar", myFont2, (Color){28, 194, 215, 200}, (Color){28, 194, 215, 255}, WHITE, 30, 2);
 
         Rectangle botaoRanking = {
             SCREEN_WIDTH / 2 - botaoLargura / 2, 
-            botaoIniciar.y + botaoAltura + espacoEntreBotoes, 
+            botaoIniciar.y + botaoAltura + espacoEntreBotoes,
             botaoLargura,
             botaoAltura
         };
-        DrawRectangleRounded(botaoRanking, 0.3f, 16, corBotao);
-        DrawRectangleRoundedLines(botaoRanking, 0.3f, 16, 2, corBorda);
-        const char *textoBotaoRanking = "Ranking";
-        Vector2 textSizeRanking = MeasureTextEx(myFont2, textoBotaoRanking, 30, 2);
-        DrawTextEx(myFont2, textoBotaoRanking,
-                (Vector2){ botaoRanking.x + (botaoRanking.width - textSizeRanking.x) / 2, botaoRanking.y + (botaoRanking.height - textSizeRanking.y) / 2 },
-                30, 2, corTexto);
+        
+        DrawButton(&botaoRanking, "Ranking", myFont2, (Color){28, 194, 215, 200}, (Color){28, 194, 215, 255}, WHITE, 30, 2);
 
         Rectangle botaoInstrucoes = {
             SCREEN_WIDTH / 2 - botaoLargura / 2, 
@@ -600,13 +597,7 @@ int main(void) {
             botaoLargura,
             botaoAltura
         };
-        DrawRectangleRounded(botaoInstrucoes, 0.3f, 16, corBotao);
-        DrawRectangleRoundedLines(botaoInstrucoes, 0.3f, 16, 2, corBorda);
-        const char *textoBotaoInstrucoes = "Como Jogar";
-        Vector2 textSizeInstrucoes = MeasureTextEx(myFont2, textoBotaoInstrucoes, 30, 2);
-        DrawTextEx(myFont2, textoBotaoInstrucoes,
-                (Vector2){ botaoInstrucoes.x + (botaoInstrucoes.width - textSizeInstrucoes.x) / 2, botaoInstrucoes.y + (botaoInstrucoes.height - textSizeInstrucoes.y) / 2 },
-                30, 2, corTexto);
+        DrawButton(&botaoInstrucoes, "Como Jogar", myFont2, (Color){28, 194, 215, 200}, (Color){28, 194, 215, 255}, WHITE, 30, 2);
 
         Rectangle botaoSair = {
             SCREEN_WIDTH / 2 - botaoLargura / 2, 
@@ -614,13 +605,7 @@ int main(void) {
             botaoLargura,
             botaoAltura
         };
-        DrawRectangleRounded(botaoSair, 0.3f, 16, corBotao);
-        DrawRectangleRoundedLines(botaoSair, 0.3f, 16, 2, corBorda);
-        const char *textoBotaoSair = "Sair";
-        Vector2 textSizeSair = MeasureTextEx(myFont2, textoBotaoSair, 30, 2);
-        DrawTextEx(myFont2, textoBotaoSair,
-                (Vector2){ botaoSair.x + (botaoSair.width - textSizeSair.x) / 2, botaoSair.y + (botaoSair.height - textSizeSair.y) / 2 },
-                30, 2, corTexto);
+        DrawButton(&botaoSair, "Sair", myFont2, (Color){28, 194, 215, 200}, (Color){28, 194, 215, 255}, WHITE, 30, 2);
 
         Vector2 mousePos = GetMousePosition();
     
@@ -664,10 +649,9 @@ int main(void) {
 
     else if (telaNome) {
 
-        const int botaoLargura = 200;
+        const int botaoLargura = 100;
         const int botaoAltura = 50;
 
-        Color corTexto = (Color){255, 255, 255, 255}; 
         Color corBorda = (Color){70, 130, 180, 255};
         Color corCaixaTexto = (Color){255, 255, 255, 255};
 
@@ -714,20 +698,7 @@ int main(void) {
         botaoAltura
         };
 
-        DrawRectangleRounded(botaoNome, 0.3f, 10, (Color){80, 155, 157, 100});
-        DrawRectangleRoundedLines(botaoNome, 0.3f , 16 , 2 , (Color){80, 155, 157, 200});
-        const char *texto = "Jogar";
-        float fontSize = 30;      
-        float spacing = 2;       
-
-        Vector2 textSize = MeasureTextEx(myFont2, texto, fontSize, spacing);
-
-        Vector2 textPos = (Vector2){
-            botaoNome.x + (botaoNome.width - textSize.x) / 2,
-            botaoNome.y + (botaoNome.height - textSize.y) / 2
-        };
-
-        DrawTextEx(myFont2, texto, textPos, fontSize, spacing, corTexto);
+        DrawButton(&botaoNome, "Jogar", myFont2, (Color){80, 155, 157, 100}, (Color){80, 155, 157, 200}, WHITE, 30, 2);
 
         static bool exibirMensagemErro = false;
 
@@ -805,21 +776,7 @@ int main(void) {
 
         Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-        DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
-        DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
-
-        const char *textoVoltar = "Voltar";
-        float fontSizeVoltar = 20; 
-        float spacingVoltar = 2; 
-
-        Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
-
-        Vector2 textPosVoltar = (Vector2){
-            botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
-            botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
-        };
-
-        DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
+        DrawButton(&botaoVoltar, "Voltar", myFont2, (Color){80, 155, 157, 100}, (Color){80, 155, 157, 200}, WHITE, 20, 2);
 
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
@@ -874,21 +831,7 @@ int main(void) {
                     
         Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-        DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
-        DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
-
-        const char *textoVoltar = "Voltar";
-        float fontSizeVoltar = 20; 
-        float spacingVoltar = 2;  
-
-        Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
-
-        Vector2 textPosVoltar = (Vector2){
-            botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
-            botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
-        };
-
-        DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
+        DrawButton(&botaoVoltar, "Voltar", myFont2, (Color){80, 155, 157, 100}, (Color){80, 155, 157, 200}, WHITE, 20, 2);
 
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
@@ -1077,21 +1020,7 @@ int main(void) {
 
             DrawTextEx(myFont2,mensagem,textPos,20,2,DARKGRAY);
 
-            DrawRectangleRounded(botaoVerRanking,0.3f,10,(Color){80,155,157,100});
-            DrawRectangleRoundedLines(botaoVerRanking, 0.3f , 16 , 2 , (Color){80, 155, 157, 200});
-
-            const char *texto = "Ver Ranking";
-            float fontSize = 20;      
-            float spacing = 2;       
-
-            Vector2 textSize2 = MeasureTextEx(myFont2, texto, fontSize, spacing);
-
-            Vector2 textPos2 = (Vector2){
-                botaoVerRanking.x + (botaoVerRanking.width - textSize2.x) / 2,
-                botaoVerRanking.y + (botaoVerRanking.height - textSize2.y) / 2
-            };
-
-            DrawTextEx(myFont2, texto, textPos2, fontSize, spacing, WHITE);
+            DrawButton(&botaoVerRanking, "Ver Ranking", myFont2, (Color){80, 155, 157, 100}, (Color){80, 155, 157, 200}, WHITE, 20, 2);
 
             Vector2 mousePos = GetMousePosition();
 
@@ -1122,32 +1051,8 @@ int main(void) {
                 40
             };
 
-            DrawRectangleRounded(botaoReiniciar, 0.3f, 10, (Color){80, 155, 157, 100});
-            DrawRectangleRoundedLines(botaoReiniciar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
-
-            DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){40, 120, 160, 100});  
-            DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});  
-
-            const char *textoReiniciar = "Reiniciar";
-            const char *textoVoltar = "Voltar";
-            float fontSize = 20;      
-            float spacing = 2; 
-
-            Vector2 textSizeReiniciar = MeasureTextEx(myFont2, textoReiniciar, fontSize, spacing);
-            Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSize, spacing);
-
-            Vector2 textPosReiniciar = (Vector2){
-                botaoReiniciar.x + (botaoReiniciar.width - textSizeReiniciar.x) / 2,
-                botaoReiniciar.y + (botaoReiniciar.height - textSizeReiniciar.y) / 2
-            };
-
-            Vector2 textPosVoltar = (Vector2){
-                botaoVoltar.x + (botaoVoltar.width - textSizeVoltar.x) / 2,
-                botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
-            };
-
-            DrawTextEx(myFont2, textoReiniciar, textPosReiniciar, fontSize, spacing, WHITE);
-            DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSize, spacing, WHITE);
+            DrawButton(&botaoReiniciar, "Reiniciar", myFont2, (Color){80, 155, 157, 100}, (Color){80, 155, 157, 200}, WHITE, 20, 2);
+            DrawButton(&botaoVoltar, "Voltar", myFont2, (Color){40, 120, 160, 100}, (Color){40, 120, 160, 200}, WHITE, 20, 2);
 
             Vector2 mousePos = GetMousePosition();
             if (CheckCollisionPointRec(mousePos, botaoReiniciar)){
