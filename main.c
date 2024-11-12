@@ -86,11 +86,10 @@ void popPowerUp(PowerUp** head) {
 }
 bool posicaoEmBarreira(Vector2 posicao, Barreira* barreiras, int numBarreiras) {
     for (int i = 0; i < numBarreiras; i++) {
-            // Verifica se está dentro da barreira
             if (CheckCollisionPointRec(posicao, barreiras[i].rect)) {
                 return true;
             }
-            // Verifica a distância mínima da barreira
+  
             float distanciaX = fabs(posicao.x - (barreiras[i].rect.x + barreiras[i].rect.width / 2));
             float distanciaY = fabs(posicao.y - (barreiras[i].rect.y + barreiras[i].rect.height / 2));
             if (distanciaX < DISTANCIA_MINIMA_BARRREIRA && distanciaY < DISTANCIA_MINIMA_BARRREIRA) {
@@ -106,21 +105,19 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp) {
 
     while (powerUpAtual != NULL) {
         if (powerUpAtual->ativo && calcularDistancia(player.posicao, powerUpAtual->posicao) < PLAYER_SIZE) {
-            // Remove o power-up da lista ao coletá-lo
+        
             if (anterior == NULL) {
-                popPowerUp(headPowerUp);  // Remove o primeiro elemento
+                popPowerUp(headPowerUp);  
             } else {
                 anterior->prox = powerUpAtual->prox;
                 free(powerUpAtual);
             }
 
             powerUpsCapturados++;
-
-            // Ativa imunidade e define tempo restante
             jogadorImune = true;
             tempoImunidadeRestante = TEMPO_IMUNIDADE;
 
-            return true;  // Power-up coletado com sucesso
+            return true;  
         }
         anterior = powerUpAtual;
         powerUpAtual = powerUpAtual->prox;
@@ -131,21 +128,18 @@ bool coletarPowerUp(Player player, PowerUp** headPowerUp) {
 void gerarPowerup(PowerUp** headPowerUp, Barreira* barreiras, int numBarreiras) {
     int intervaloPowerUp = 1000;
 
-    // Verifica se já atingimos o limite de dois power-ups totais
     if (powerUpsGeradosTotal >= 1) return;
 
-    // Gera um novo power-up se o intervalo foi alcançado e se o total não excede o limite
     if (contadorTempoPowerUp >= intervaloPowerUp) {
         Vector2 posicao;
 
-        // Gera uma posição fora das barreiras
         do {
             posicao = (Vector2){ GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50) };
         } while (posicaoEmBarreira(posicao, barreiras, numBarreiras));
 
-        pushPowerUp(headPowerUp, posicao); // Adiciona o novo power-up
-        contadorTempoPowerUp = 0;          // Reseta o contador para o próximo intervalo
-        powerUpsGeradosTotal++;            // Incrementa o total de power-ups gerados
+        pushPowerUp(headPowerUp, posicao); 
+        contadorTempoPowerUp = 0;          
+        powerUpsGeradosTotal++;            
     }
 
     contadorTempoPowerUp++;
@@ -160,7 +154,6 @@ void desenharPowerUps(PowerUp* head, Texture2D powerUpTexture) {
         }
         temp = temp->prox;
     }
-    //UnloadTexture(powerUp);
 }
 
 void atualizarImunidade() {
@@ -177,33 +170,28 @@ void ordenarLixosPorPosicaoY(Lixo** head) {
 
     Lixo* atual = *head;
 
-    // Laço externo percorre cada elemento da lista a partir do início
     while (atual != NULL) {
         Lixo* prox = atual->prox;
 
-        // Laço interno percorre todos os elementos após `atual`
         while (prox != NULL) {
-            // Se encontrar um `prox` com y menor, troca as posições
             if (prox->posicao.y < atual->posicao.y) {
                 Vector2 aux = atual->posicao;
                 atual->posicao = prox->posicao;
                 prox->posicao = aux;
             }
-            prox = prox->prox;  // Avança para o próximo elemento em relação a `prox`
+            prox = prox->prox; 
         }
 
-        atual = atual->prox;  // Avança para o próximo elemento em relação a `atual`
+        atual = atual->prox; 
     }
 }
 
-// Função para inicializar itens em posições aleatórias e adicionar na lista encadeada
 void inicializarItens(Lixo** head, Barreira* barreiras, int numBarreiras) {
      for (int i = 0; i < NUM_ITEMS; i++) {
         Lixo* novoLixo = (Lixo*)malloc(sizeof(Lixo));
         do {
-            // Gera uma posição aleatória
             novoLixo->posicao = (Vector2){GetRandomValue(50, SCREEN_WIDTH - 50), GetRandomValue(50, SCREEN_HEIGHT - 50)};
-        } while (posicaoEmBarreira(novoLixo->posicao, barreiras, numBarreiras)); // Repete enquanto a posição estiver em uma barreira
+        } while (posicaoEmBarreira(novoLixo->posicao, barreiras, numBarreiras)); 
         
         novoLixo->coletado = false;
         novoLixo->prox = *head;
@@ -216,7 +204,6 @@ void inicializarItensOrdenados(Lixo** head, Barreira* barreiras, int numBarreira
     ordenarLixosPorPosicaoY(head);
 }
 
-// Função para verificar se o jogador colidiu com algum item e marcar como coletado
 void verificarColetaItens(Player player, Lixo* head) {
     Lixo* temp = head;
     while (temp != NULL) {
@@ -227,7 +214,6 @@ void verificarColetaItens(Player player, Lixo* head) {
     }
 }
 
-// Função para verificar se todos os itens foram coletados
 bool todosItensColetados(Lixo* head) {
     Lixo* temp = head;
     while (temp != NULL) {
@@ -238,7 +224,7 @@ bool todosItensColetados(Lixo* head) {
     }
     return true;
 }
-// Função para liberar a memória alocada para os itens ao reiniciar o jogo
+
 void liberarItens(Lixo** head) {
     Lixo* temp = *head;
     while (temp != NULL) {
@@ -277,43 +263,35 @@ void inicializarTubarao(Tubarao** head, int numSharks, Player player) {
         } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
 
         addTubarao(head, x, y, SHARK_SPEED);
-        
-        // Define uma direção inicial aleatória para o tubarão
+
         (*head)->direcao = (Vector2){ ((float)GetRandomValue(-10, 10)) / 10.0f, ((float)GetRandomValue(-10, 10)) / 10.0f };
     }
 }
 
 void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, bool* vitoria, bool* telaInicial, bool* aumentoVelocidade, Barreira* barreiras, int numBarreiras, char* nomeJogador, int* caractereAtual, bool* adicionouAoRanking, PowerUp **headPowerUp) {
-    // Reiniciar posição do jogador
     player->posicao = (Vector2){100, 100};
     *gameOver = false;
     *vitoria = false;
     *aumentoVelocidade = false;
     *telaInicial = true;
-    *adicionouAoRanking = false;  // Permite salvar a pontuação apenas uma vez
+    *adicionouAoRanking = false; 
 
-    // Resetar o tempo do jogo
     tempoInicial = GetTime();
     tempoDecorrido = 0.0f;
-
-    // Resetar os power-ups
     tempoDesdeUltimoTubarao = 0;
     powerUpsGerados = 0;
     powerUpsGeradosTotal = 0;
     powerUpsCapturados = 0;
     contadorTempoPowerUp = 0;
-
     jogadorImune = false;
     tempoImunidadeRestante = 0;
-
-    // Limpar o nome do jogador e permitir reentrada
     nomeJogador[0] = '\0';
     *caractereAtual = 0;
 
     while (*headPowerUp != NULL) {
-        popPowerUp(headPowerUp);  // Remove cada power-up até a lista estar vazia
+        popPowerUp(headPowerUp); 
     }
-    // Liberar tubarões e itens coletados
+
     Tubarao* aux = *head;
     while (aux != NULL) {
         Tubarao* prox = aux->prox;
@@ -330,32 +308,31 @@ void reiniciarJogo(Player* player, Tubarao** head, Lixo** lixo, bool* gameOver, 
 void forcaSeparacaoTubaroes(Tubarao* head) {
     Tubarao* temp = head;
     while (temp != NULL) {
-        Tubarao* other = head;
-        Vector2 separationForce = { 0, 0 };
+        Tubarao* outro = head;
+        Vector2 forcaSeparacao = { 0, 0 };
         
-        while (other != NULL) {
-            if (other != temp) {
-                float distance = calcularDistancia(temp->posicao, other->posicao);
-                if (distance < SEPARATION_DISTANCE) {
-                    Vector2 repel = {
-                        temp->posicao.x - other->posicao.x,
-                        temp->posicao.y - other->posicao.y
+        while (outro != NULL) {
+            if (outro != temp) {
+                float distanciaTubaroes = calcularDistancia(temp->posicao, outro->posicao);
+                if (distanciaTubaroes < SEPARATION_DISTANCE) {
+                    Vector2 repulsao = {
+                        temp->posicao.x - outro->posicao.x,
+                        temp->posicao.y - outro->posicao.y
                     };
-                    float magnitude = sqrtf(repel.x * repel.x + repel.y * repel.y);
-                    repel.x /= magnitude;
-                    repel.y /= magnitude;
+                    float magnitude = sqrtf(repulsao.x * repulsao.x + repulsao.y * repulsao.y);
+                    repulsao.x /= magnitude;
+                    repulsao.y /= magnitude;
 
-                    separationForce.x += repel.x / (distance * 0.3f);
-                    separationForce.y += repel.y / (distance * 0.3f);
+                    forcaSeparacao.x += repulsao.x / (distanciaTubaroes * 0.3f);
+                    forcaSeparacao.y += repulsao.y / (distanciaTubaroes * 0.3f);
                 }
             }
-            other = other->prox;
+            outro = outro->prox;
         }
         
-        temp->posicao.x += separationForce.x * 1.5f;
-        temp->posicao.y += separationForce.y * 1.5f;
+        temp->posicao.x += forcaSeparacao.x * 1.5f;
+        temp->posicao.y += forcaSeparacao.y * 1.5f;
 
-        // Limita o movimento do tubarão às bordas da tela
         if (temp->posicao.x < 0) temp->posicao.x = 0;
         if (temp->posicao.x > SCREEN_WIDTH - SHARK_SIZE) temp->posicao.x = SCREEN_WIDTH - SHARK_SIZE;
         if (temp->posicao.y < 0) temp->posicao.y = 0;
@@ -365,14 +342,13 @@ void forcaSeparacaoTubaroes(Tubarao* head) {
     }
 }
 
-
 void moverJogador(Player* player) {
     if (IsKeyDown(KEY_RIGHT)) player->posicao.x += player->speed;
     if (IsKeyDown(KEY_LEFT)) player->posicao.x -= player->speed;
     if (IsKeyDown(KEY_UP)) player->posicao.y -= player->speed;
     if (IsKeyDown(KEY_DOWN)) player->posicao.y += player->speed;
 
-    // Limita o jogador dentro dos limites da tela
+
     if (player->posicao.x < 0) player->posicao.x = 0;
     if (player->posicao.x > SCREEN_WIDTH - PLAYER_SIZE) player->posicao.x = SCREEN_WIDTH - PLAYER_SIZE;
     if (player->posicao.y < 0) player->posicao.y = 0;
@@ -383,22 +359,18 @@ void moverTubaraoAleatoriamente(Tubarao* head) {
     Tubarao* temp = head;
 
     while (temp != NULL) {
-        // Altera a direção aleatoriamente a cada 60 quadros (aproximadamente 1 segundo)
         if (GetRandomValue(0, 59) == 0) {
             temp->direcao.x = ((float)GetRandomValue(-10, 10)) / 10.0f;
             temp->direcao.y = ((float)GetRandomValue(-10, 10)) / 10.0f;
 
-            // Normaliza a nova direção
             float magnitude = sqrtf(temp->direcao.x * temp->direcao.x + temp->direcao.y * temp->direcao.y);
             temp->direcao.x /= magnitude;
             temp->direcao.y /= magnitude;
         }
 
-        // Atualiza a posição do tubarão com a direção atual
         temp->posicao.x += temp->direcao.x * temp->speed;
         temp->posicao.y += temp->direcao.y * temp->speed;
 
-        // Limita o movimento do tubarão às bordas da tela
         if (temp->posicao.x < 0) temp->posicao.x = 0;
         if (temp->posicao.x > SCREEN_WIDTH - SHARK_SIZE) temp->posicao.x = SCREEN_WIDTH - SHARK_SIZE;
         if (temp->posicao.y < 0) temp->posicao.y = 0;
@@ -407,35 +379,29 @@ void moverTubaraoAleatoriamente(Tubarao* head) {
         temp = temp->prox;
     }
 
-    // Aplica a força de separação para evitar que os tubarões fiquem muito próximos uns dos outros
     forcaSeparacaoTubaroes(head);
 }
 
-// Função para verificar colisões entre o jogador e barreiras
 bool verificaColisaoBarreira(Player player, Barreira barreira) {
     return CheckCollisionCircleRec(player.posicao, PLAYER_SIZE, barreira.rect);
 }
 void inicializarBarreiras(Barreira* barreiras, int* numBarreiras) {
 
     *numBarreiras = 7;
-    barreiras[0].rect = (Rectangle){ 92, 146, 30, 300 }; // Barreira vertical
-    barreiras[1].rect = (Rectangle){ 220, 299, 131, 30 }; // Barreira horizontal
-
-    barreiras[2].rect = (Rectangle){ 298, 446, 203, 30 }; // Barreira vertical
-    barreiras[3].rect = (Rectangle){ 238, 69, 252, 30 }; // Barreira horizontal
-    barreiras[4].rect = (Rectangle){ 560, 195, 30, 200 }; // Vertical direita
-
-    barreiras[5].rect = (Rectangle){ 608, 32, 131, 30 };  // Vertical pequena no canto superior direito
-
-    // Barreira na parte superior direita
+    barreiras[0].rect = (Rectangle){ 92, 146, 30, 300 }; 
+    barreiras[1].rect = (Rectangle){ 220, 299, 131, 30 }; 
+    barreiras[2].rect = (Rectangle){ 298, 446, 203, 30 }; 
+    barreiras[3].rect = (Rectangle){ 238, 69, 252, 30 };
+    barreiras[4].rect = (Rectangle){ 560, 195, 30, 200 }; 
+    barreiras[5].rect = (Rectangle){ 608, 32, 131, 30 }; 
     barreiras[6].rect = (Rectangle){ 637, 530, 131, 30 }; 
 }
 
 void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D barreira1, Texture2D barreira2) {
-    float escalaVisual = 4.0; // Ajuste este valor para o tamanho visual desejado das barreiras
+    float escalaVisual = 4.0;
 
     for (int i = 0; i < numBarreiras; i++) {
-        Texture2D texturaAtual = (i == 0 || i == 4) ? barreira2 : barreira1; // Usa 'barreira2' para as barreiras[0] e barreiras[4]
+        Texture2D texturaAtual = (i == 0 || i == 4) ? barreira2 : barreira1;
 
         Rectangle destRect = {
             barreiras[i].rect.x - (barreiras[i].rect.width * (escalaVisual - 1)) / 2,
@@ -445,13 +411,10 @@ void desenharBarreiras(Barreira* barreiras, int numBarreiras, Texture2D barreira
         };
 
         Rectangle sourceRect = { 0, 0, texturaAtual.width, texturaAtual.height };
-
-        // Desenha a textura com a escala visual maior
         DrawTexturePro(texturaAtual, sourceRect, destRect, (Vector2){0, 0}, 0.0f, WHITE);
     }
 }
  
-
 void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
     Jogador jogadores[100];
     int totalJogadores = 0;
@@ -468,11 +431,9 @@ void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
     jogadores[totalJogadores].tempo = tempoDecorrido;
     totalJogadores++;
 
-    // Ordenar os jogadores pelo tempo
     for (int i = 0; i < totalJogadores - 1; i++) {
         for (int j = 0; j < totalJogadores - 1 - i; j++) {
             if (jogadores[j].tempo > jogadores[j + 1].tempo) {
-                // Trocar jogadores
                 Jogador temp = jogadores[j];
                 jogadores[j] = jogadores[j + 1];
                 jogadores[j + 1] = temp;
@@ -482,17 +443,15 @@ void adicionarRanking(const char* nomeJogador, float tempoDecorrido){
 
     arquivo = fopen("ranking.txt", "w");
     if (arquivo == NULL) {
-    printf("Erro ao abrir o arquivo ranking.txt para escrita!\n");
-    return;
+        printf("Erro ao abrir o arquivo ranking.txt para escrita!\n");
+        return;
 }
     if (arquivo != NULL) {
         for (int i = 0; i < totalJogadores; i++) {
             fprintf(arquivo, "Nome: %s | Tempo: %.2f segundos\n", jogadores[i].nome, jogadores[i].tempo);
-             printf("Escrevendo jogador: %s com tempo %.2f\n", jogadores[i].nome, jogadores[i].tempo);  // Linha de depuração
         }
         fclose(arquivo);
     }
-
 }
 
 bool nomeExiste(const char *nome) {
@@ -507,10 +466,9 @@ bool nomeExiste(const char *nome) {
     float tempoArquivo;
 
     while (fgets(linha, sizeof(linha), arquivo)) {
-        // Verifica se a linha contém o nome do jogador
         sscanf(linha, "Nome: %[^|] | Tempo: %f segundos", nomeArquivo, &tempoArquivo);
         if (strcmp(nomeArquivo, nomeComEspaco) == 0) {
-                fclose(arquivo); // Fecha o arquivo antes de retornar
+                fclose(arquivo); 
                 return true;
             }
         }
@@ -589,28 +547,28 @@ int main(void) {
         if (telaInicial) {
             DrawTexturePro(
                     background,
-                    (Rectangle){0, 0, background.width, background.height},  // Região da textura
-                    (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},  // Região de destino na tela
-                    (Vector2){0, 0},                                         // Origem
-                    0.0f,                                                    // Rotação
-                    transparente                                             // Cor com transparência
+                    (Rectangle){0, 0, background.width, background.height},  
+                    (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},
+                    (Vector2){0, 0},                                         
+                    0.0f,                                                   
+                    transparente                                          
                 );
 
         Vector2 titleSize = MeasureTextEx(myFont, "S.O.S. Praia Limpa!", 70, 2);
-        DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 152}, 70, 2, (Color){0, 0, 0, 200}); // Sombra preta
-        DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){11, 143, 170,255}); // Texto azul
+        DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 152}, 70, 2, (Color){0, 0, 0, 200});
+        DrawTextEx(myFont, "S.O.S. Praia Limpa!", (Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 150}, 70, 2, (Color){11, 143, 170,255}); 
 
-        Color corBotao = (Color){28, 194, 215, 200}; // Azul claro
-        Color corTexto = (Color){255, 255, 255, 255}; // Branco
+        Color corBotao = (Color){28, 194, 215, 200}; 
+        Color corTexto = (Color){255, 255, 255, 255};
         Color corBorda = (Color){28, 194, 215, 255};
 
         const int botaoLargura = 200;
         const int botaoAltura = 50;
-        const int espacoEntreBotoes = 20; // Espaçamento entre os botões
+        const int espacoEntreBotoes = 20; 
 
         Rectangle botaoIniciar = {
-            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-            SCREEN_HEIGHT / 2 - 30, // Mover o botão para cima
+            SCREEN_WIDTH / 2 - botaoLargura / 2, 
+            SCREEN_HEIGHT / 2 - 30, 
             botaoLargura,
             botaoAltura
         };
@@ -622,10 +580,9 @@ int main(void) {
                 (Vector2){ botaoIniciar.x + (botaoIniciar.width - textSizeIniciar.x) / 2, botaoIniciar.y + (botaoIniciar.height - textSizeIniciar.y) / 2 },
                 30, 2, corTexto);
 
-        // Botão Ranking
         Rectangle botaoRanking = {
-            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-            botaoIniciar.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Iniciar
+            SCREEN_WIDTH / 2 - botaoLargura / 2, 
+            botaoIniciar.y + botaoAltura + espacoEntreBotoes, 
             botaoLargura,
             botaoAltura
         };
@@ -637,10 +594,9 @@ int main(void) {
                 (Vector2){ botaoRanking.x + (botaoRanking.width - textSizeRanking.x) / 2, botaoRanking.y + (botaoRanking.height - textSizeRanking.y) / 2 },
                 30, 2, corTexto);
 
-        // Botão Instruções
         Rectangle botaoInstrucoes = {
-            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-            botaoRanking.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Ranking
+            SCREEN_WIDTH / 2 - botaoLargura / 2, 
+            botaoRanking.y + botaoAltura + espacoEntreBotoes,
             botaoLargura,
             botaoAltura
         };
@@ -652,10 +608,9 @@ int main(void) {
                 (Vector2){ botaoInstrucoes.x + (botaoInstrucoes.width - textSizeInstrucoes.x) / 2, botaoInstrucoes.y + (botaoInstrucoes.height - textSizeInstrucoes.y) / 2 },
                 30, 2, corTexto);
 
-        // Botão Sair
         Rectangle botaoSair = {
-            SCREEN_WIDTH / 2 - botaoLargura / 2, // Centraliza horizontalmente
-            botaoInstrucoes.y + botaoAltura + espacoEntreBotoes, // Abaixo do botão Instruções
+            SCREEN_WIDTH / 2 - botaoLargura / 2, 
+            botaoInstrucoes.y + botaoAltura + espacoEntreBotoes, 
             botaoLargura,
             botaoAltura
         };
@@ -712,16 +667,16 @@ int main(void) {
         const int botaoLargura = 200;
         const int botaoAltura = 50;
 
-        Color corTexto = (Color){255, 255, 255, 255}; // Branco
-        Color corBorda = (Color){70, 130, 180, 255}; // Azul escuro (Dark Blue)
+        Color corTexto = (Color){255, 255, 255, 255}; 
+        Color corBorda = (Color){70, 130, 180, 255};
         Color corCaixaTexto = (Color){255, 255, 255, 255};
 
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
 
-        Vector2 titleSize = MeasureTextEx(myFont, "Insira seu Nome:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
+        Vector2 titleSize = MeasureTextEx(myFont, "Insira seu Nome:", 40, 1); 
         
-        DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 102}, 40, 1, (Color){0, 0, 0, 145}); // Texto azul, fonte menor
-        DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 200}); // Texto azul, fonte menor
+        DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2 + 2, 102}, 40, 1, (Color){0, 0, 0, 145}); 
+        DrawTextEx(myFont, "Insira seu Nome:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 100}, 40, 1, (Color){70, 130, 180, 200}); 
 
         const int caixaTextoLargura = 300;
         const int caixaTextoAltura = 40;
@@ -762,8 +717,8 @@ int main(void) {
         DrawRectangleRounded(botaoNome, 0.3f, 10, (Color){80, 155, 157, 100});
         DrawRectangleRoundedLines(botaoNome, 0.3f , 16 , 2 , (Color){80, 155, 157, 200});
         const char *texto = "Jogar";
-        float fontSize = 30;      // Tamanho da fonte
-        float spacing = 2;        // Espaçamento entre letras
+        float fontSize = 30;      
+        float spacing = 2;       
 
         Vector2 textSize = MeasureTextEx(myFont2, texto, fontSize, spacing);
 
@@ -780,25 +735,25 @@ int main(void) {
         if (CheckCollisionPointRec(mousePos, botaoNome)) {
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            // Verifica se o nome é válido
+
                 bool nomeValido = (caractereAtual > 0 && !nomeExiste(nomeJogador));
                 if (nomeValido) {
                     telaNome = false;
                     telaInicial = false;
                     telaRanking = false;
-                    exibirMensagemErro = false;  // Limpa a mensagem de erro
+                    exibirMensagemErro = false; 
 
-                    tempoInicial = GetTime();  // Reinicia o cronômetro do jogo
-                    // Limpa a mensagem de erro se o nome for válido
+                    tempoInicial = GetTime();  
+
                 } else {
-                    exibirMensagemErro = true; // Define para exibir mensagem de erro
+                    exibirMensagemErro = true;
                 }
             } 
         }
-        // Exibir mensagem de erro se o nome não for válido
+
         if (exibirMensagemErro) {
             const char *mensagemErro = "Nome usado ou vazio. Tente outro!";
-            float fontSizeErro = 20; // Tamanho da fonte
+            float fontSizeErro = 20; 
             float spacingErro = 2;   
 
             Vector2 textSizeErro = MeasureTextEx(myFont2, mensagemErro, fontSizeErro, spacingErro);
@@ -816,9 +771,9 @@ int main(void) {
     else if (telaRanking) {
 
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
-        Vector2 titleSize = MeasureTextEx(myFont, "Ranking - Top 10:", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
-        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2+2, 70}, 40, 1, (Color){0, 0, 0, 145}); // Texto azul, fonte menor
-        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 68}, 40, 1, (Color){70, 130, 180, 200}); // Texto azul, fonte menor
+        Vector2 titleSize = MeasureTextEx(myFont, "Ranking - Top 10:", 40, 1); 
+        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2+2, 70}, 40, 1, (Color){0, 0, 0, 145}); 
+        DrawTextEx(myFont, "Ranking - Top 10:",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 68}, 40, 1, (Color){70, 130, 180, 200}); 
 
         FILE *arquivo = fopen("ranking.txt", "r");
         char linha[100];
@@ -828,21 +783,21 @@ int main(void) {
         if (arquivo != NULL) {
             for (int i = 0; i < 10; i++) {
                 if (fgets(linha, sizeof(linha), arquivo) != NULL) {
-                    // Tente extrair o nome e o tempo da linha
+
                     if (sscanf(linha, "Nome: %s | Tempo: %f segundos", nomeJogador, &tempo) == 2) {
-                        int yPosition = 130 + i * 40; // Ajustado para começar mais acima
+                        int yPosition = 130 + i * 40; 
                         char rankingText[100];
                         sprintf(rankingText, "%d. %s - %.2f segundos", i + 1, nomeJogador, tempo);
                         
-                        Vector2 textSize = MeasureTextEx(myFont2, rankingText, 20, 0); // Medir o texto com a fonte 'myfont2'
-                        Vector2 position = {(SCREEN_WIDTH - textSize.x) / 2, (float)yPosition}; // Criar um Vector2 para a posição
+                        Vector2 textSize = MeasureTextEx(myFont2, rankingText, 20, 0); 
+                        Vector2 position = {(SCREEN_WIDTH - textSize.x) / 2, (float)yPosition};
                         
-                        DrawTextEx(myFont2, rankingText, position, 20, 0, (Color){0, 0, 0, 200}); // Texto preto
+                        DrawTextEx(myFont2, rankingText, position, 20, 0, (Color){0, 0, 0, 200});
                     } else {
-                        break; // Se a linha não estiver no formato correto, saia do loop
+                        break; 
                     }
                 } else {
-                    break; // Se não houver mais linhas, saia do loop
+                    break; 
                 }
             }
             fclose(arquivo);
@@ -850,14 +805,12 @@ int main(void) {
 
         Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-        // Desenhar o botão arredondado
         DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
         DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
 
-        // Texto do botão
         const char *textoVoltar = "Voltar";
-        float fontSizeVoltar = 20; // Tamanho da fonte
-        float spacingVoltar = 2;    // Espaçamento entre letras
+        float fontSizeVoltar = 20; 
+        float spacingVoltar = 2; 
 
         Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
 
@@ -866,10 +819,8 @@ int main(void) {
             botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
         };
 
-    // Desenhar o texto do botão "Voltar"
         DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
-        // Verifica se o usuário clicou no botão de Voltar
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -881,19 +832,17 @@ int main(void) {
     }
 
     else if (telaInstrucoes) {
-        float startY = 120;  // Subindo a posição inicial para o texto das instruções
-        float lineSpacing = 50;  // Diminuindo o espaçamento entre instruções
+        float startY = 120;  
+        float lineSpacing = 50;  
         float lineSpacingTopic = 40;
-        float fontSize = 20;  // Reduzindo o tamanho da fonte das instruções
+        float fontSize = 20;  
 
         DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, (Color){173, 216, 230, 255});
-        
-        // Ajustando o título mais acima e reduzindo o tamanho da fonte
-        Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar", 40, 1); // Reduzindo o tamanho para 60 e espaçamento para 1
-                DrawTextEx(myFont, "Como Jogar",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2+2, 70}, 40, 1, (Color){0, 0, 0, 145}); // Texto azul, fonte menor
-                DrawTextEx(myFont, "Como Jogar",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 68}, 40, 1, (Color){70, 130, 180, 200}); // Texto azul, fonte menor
 
-        // Calcula a largura do texto
+        Vector2 titleSize = MeasureTextEx(myFont, "Como Jogar", 40, 1); 
+        DrawTextEx(myFont, "Como Jogar",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2+2, 70}, 40, 1, (Color){0, 0, 0, 145}); 
+        DrawTextEx(myFont, "Como Jogar",(Vector2){(SCREEN_WIDTH - titleSize.x) / 2, 68}, 40, 1, (Color){70, 130, 180, 200}); 
+
         Vector2 line1Size = MeasureTextEx(myFont2, "1 - Use as setas para mover o personagem", fontSize, 1);
         Vector2 line2Size = MeasureTextEx(myFont2, "entre as barreiras de corais", fontSize, 1);
         Vector2 line3Size = MeasureTextEx(myFont2, "2 - Seu objetivo sera coletar todos os lixos do mar", fontSize, 1);
@@ -903,40 +852,34 @@ int main(void) {
         Vector2 line7Size = MeasureTextEx(myFont2, "4 - Se voce coletar todos os lixos, vencera", fontSize, 1);
         Vector2 line8Size = MeasureTextEx(myFont2, "e podera consultar o ranking dos jogadores", fontSize, 1);
 
-        // Primeira instrução
         DrawTextEx(myFont2, "1 - Use as setas para mover o personagem", 
                 (Vector2){(SCREEN_WIDTH - line1Size.x) / 2, startY}, fontSize, 1, (Color){0, 0, 0, 255});
         DrawTextEx(myFont2, "entre as barreiras de corais", 
                 (Vector2){(SCREEN_WIDTH - line2Size.x) / 2, startY + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
 
-        // Segunda instrução
         DrawTextEx(myFont2, "2 - Seu objetivo sera coletar todos os lixos do mar", 
                 (Vector2){(SCREEN_WIDTH - line3Size.x) / 2, startY + 2 * lineSpacing}, fontSize, 1, (Color){0, 0, 0, 255});
         DrawTextEx(myFont2, "sem ser capturado pelos tubaroes", 
                 (Vector2){(SCREEN_WIDTH - line4Size.x) / 2, startY + 2 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
 
-        // Terceira instrução
         DrawTextEx(myFont2, "3 - Powerups podem aparecer a qualquer momento,", 
                 (Vector2){(SCREEN_WIDTH - line5Size.x) / 2, startY + 4 * lineSpacing}, fontSize, 1, (Color){0, 0, 0, 255});
         DrawTextEx(myFont2, "se coleta-lo voce ganha imortalidade por 5 segundos", 
                 (Vector2){(SCREEN_WIDTH - line6Size.x) / 2, startY + 4 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
 
-        // Quarta instrução
         DrawTextEx(myFont2, "4 - Se voce coletar todos os lixos, vencera", 
                 (Vector2){(SCREEN_WIDTH - line7Size.x) / 2, startY + 6 * lineSpacing}, fontSize, 1, (Color){0, 0, 0, 255});
         DrawTextEx(myFont2, "e podera consultar o ranking dos jogadores", 
                 (Vector2){(SCREEN_WIDTH - line8Size.x) / 2, startY + 6 * lineSpacing + lineSpacingTopic}, fontSize, 1, (Color){0, 0, 0, 255});
-                    // teste teste teste
+                    
         Rectangle botaoVoltar = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 60, 100, 40};
 
-        // Desenhar o botão arredondado
         DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){80, 155, 157, 100});
         DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
 
-        // Texto do botão
         const char *textoVoltar = "Voltar";
-        float fontSizeVoltar = 20; // Tamanho da fonte
-        float spacingVoltar = 2;    // Espaçamento entre letras
+        float fontSizeVoltar = 20; 
+        float spacingVoltar = 2;  
 
         Vector2 textSizeVoltar = MeasureTextEx(myFont2, textoVoltar, fontSizeVoltar, spacingVoltar);
 
@@ -945,10 +888,8 @@ int main(void) {
             botaoVoltar.y + (botaoVoltar.height - textSizeVoltar.y) / 2
         };
 
-        // Desenhar o texto do botão "Voltar"
         DrawTextEx(myFont2, textoVoltar, textPosVoltar, fontSizeVoltar, spacingVoltar, WHITE);
 
-        // Verifica se o usuário clicou no botão de Voltar
         if (CheckCollisionPointRec(GetMousePosition(), botaoVoltar)){
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -989,20 +930,16 @@ int main(void) {
             if (tempoMensagem <= 0) mostrarMensagem = false;
         }
 
-                // Verifica colisão com as barreiras
+         
         for (int i = 0; i < numBarreiras; i++) {
             if (verificaColisaoBarreira(player, barreiras[i])) {
-                // Se houver colisão, impede o movimento do jogador
                 player.posicao.x -= (IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT)) * player.speed;
                 player.posicao.y -= (IsKeyDown(KEY_DOWN) - IsKeyDown(KEY_UP)) * player.speed;
                 break;
             }
         }
 
-                // Incrementa o tempo desde o último tubarão adicionado
         tempoDesdeUltimoTubarao++;
-
-                // Adiciona um novo tubarão a cada 35 segundos (2100 quadros)
         if (tempoDesdeUltimoTubarao >= intervaloTubarao) {
             float x, y;
             do {
@@ -1010,11 +947,9 @@ int main(void) {
                 y = GetRandomValue(0, SCREEN_HEIGHT);
             } while (calcularDistancia((Vector2){x, y}, player.posicao) < MIN_DISTANCE);
 
-            // Adiciona o novo tubarão e define uma direção inicial
             addTubarao(&head, x, y, SHARK_SPEED);
             head->direcao = (Vector2){ ((float)GetRandomValue(-10, 10)) / 10.0f, ((float)GetRandomValue(-10, 10)) / 10.0f };
 
-            // Reinicia o contador
             tempoDesdeUltimoTubarao = 0;
         }
 
@@ -1030,12 +965,10 @@ int main(void) {
             temp = temp->prox;
         }
 
-    // Defina uma variável para armazenar a última direção
-        int lastDirection; // Comece com uma direção padrão, como direita
+        int lastDirection; 
 
-    // Dentro do loop principal
         if (IsKeyDown(KEY_RIGHT)) {
-            lastDirection = KEY_RIGHT; // Atualize a direção
+            lastDirection = KEY_RIGHT; 
             DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
         } else if (IsKeyDown(KEY_LEFT)) {
             lastDirection = KEY_LEFT;
@@ -1047,7 +980,6 @@ int main(void) {
             lastDirection = KEY_DOWN;
             DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
         } else {
-            // Nenhuma tecla pressionada, mantenha a última direção
             switch (lastDirection) {
                 case KEY_RIGHT:
                     DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
@@ -1065,9 +997,7 @@ int main(void) {
         }
 
         temp = head;
-
         while (temp != NULL) {
-                // Seleciona a textura do tubarão com base na direção
             if (fabs(temp->direcao.x) > fabs(temp->direcao.y)) {
                 if (temp->direcao.x > 0) {
                     DrawTextureEx(sharkRight, (Vector2){temp->posicao.x - SHARK_SIZE, temp->posicao.y - SHARK_SIZE}, 0.0f, 0.4f, WHITE);
@@ -1195,8 +1125,8 @@ int main(void) {
             DrawRectangleRounded(botaoReiniciar, 0.3f, 10, (Color){80, 155, 157, 100});
             DrawRectangleRoundedLines(botaoReiniciar, 0.3f, 16, 2, (Color){80, 155, 157, 200});
 
-            DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){40, 120, 160, 100});  // Cor mais escura e azulado para o botão
-            DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});  // Cor mais escura e azulado para a borda
+            DrawRectangleRounded(botaoVoltar, 0.3f, 10, (Color){40, 120, 160, 100});  
+            DrawRectangleRoundedLines(botaoVoltar, 0.3f, 16, 2, (Color){40, 120, 160, 200});  
 
             const char *textoReiniciar = "Reiniciar";
             const char *textoVoltar = "Voltar";
