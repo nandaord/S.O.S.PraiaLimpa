@@ -1,2 +1,3 @@
 Nome: manuteste2 | Tempo: 35.37 segundos
+Nome: manu | Tempo: 37.97 segundos
 Nome: manuteste | Tempo: 56.67 segundos

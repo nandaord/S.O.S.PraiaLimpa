@@ -365,15 +365,6 @@ void forcaSeparacaoTubaroes(Tubarao* head) {
     }
 }
 
-void velocidadeAleatoriaTubarao(Tubarao* head, float increment) {
-    Tubarao* aux = head;
-    while (aux != NULL) {
-        if (GetRandomValue(0, 1) == 1) {
-            aux->speed += increment;
-        }
-        aux = aux->prox;
-    }
-}
 
 void moverJogador(Player* player) {
     if (IsKeyDown(KEY_RIGHT)) player->posicao.x += player->speed;
