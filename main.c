@@ -207,7 +207,7 @@ void inicializarItensOrdenados(Lixo** head, Barreira* barreiras, int numBarreira
 void verificarColetaItens(Player player, Lixo* head) {
     Lixo* temp = head;
     while (temp != NULL) {
-        if (!temp->coletado && calcularDistancia(player.posicao, temp->posicao) < PLAYER_SIZE) {
+        if (!temp->coletado && calcularDistancia(player.posicao, temp->posicao)-36 < PLAYER_SIZE) {
             temp->coletado = true;
         }
         temp = temp->prox;
