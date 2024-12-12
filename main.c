@@ -207,7 +207,7 @@ void inicializarItensOrdenados(Lixo** head, Barreira* barreiras, int numBarreira
 void verificarColetaItens(Player player, Lixo* head) {
     Lixo* temp = head;
     while (temp != NULL) {
-        if (!temp->coletado && calcularDistancia(player.posicao, temp->posicao)-36 < PLAYER_SIZE) {
+        if (!temp->coletado && calcularDistancia(player.posicao, temp->posicao)-30 < PLAYER_SIZE) {
             temp->coletado = true;
         }
         temp = temp->prox;
@@ -343,10 +343,10 @@ void forcaSeparacaoTubaroes(Tubarao* head) {
 }
 
 void moverJogador(Player* player) {
-    if (IsKeyDown(KEY_RIGHT)) player->posicao.x += player->speed;
-    if (IsKeyDown(KEY_LEFT)) player->posicao.x -= player->speed;
-    if (IsKeyDown(KEY_UP)) player->posicao.y -= player->speed;
-    if (IsKeyDown(KEY_DOWN)) player->posicao.y += player->speed;
+    if (IsKeyDown(KEY_D)) player->posicao.x += player->speed;
+    if (IsKeyDown(KEY_A)) player->posicao.x -= player->speed;
+    if (IsKeyDown(KEY_W)) player->posicao.y -= player->speed;
+    if (IsKeyDown(KEY_S)) player->posicao.y += player->speed;
 
 
     if (player->posicao.x < 0) player->posicao.x = 0;
@@ -876,8 +876,8 @@ int main(void) {
          
         for (int i = 0; i < numBarreiras; i++) {
             if (verificaColisaoBarreira(player, barreiras[i])) {
-                player.posicao.x -= (IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT)) * player.speed;
-                player.posicao.y -= (IsKeyDown(KEY_DOWN) - IsKeyDown(KEY_UP)) * player.speed;
+                player.posicao.x -= (IsKeyDown(KEY_D) - IsKeyDown(KEY_A)) * player.speed;
+                player.posicao.y -= (IsKeyDown(KEY_S) - IsKeyDown(KEY_W)) * player.speed;
                 break;
             }
         }
@@ -910,30 +910,30 @@ int main(void) {
 
         int lastDirection; 
 
-        if (IsKeyDown(KEY_RIGHT)) {
-            lastDirection = KEY_RIGHT; 
+        if (IsKeyDown(KEY_D)) {
+            lastDirection = KEY_D; 
             DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-        } else if (IsKeyDown(KEY_LEFT)) {
-            lastDirection = KEY_LEFT;
+        } else if (IsKeyDown(KEY_A)) {
+            lastDirection = KEY_A;
             DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-        } else if (IsKeyDown(KEY_UP)) {
-            lastDirection = KEY_UP;
+        } else if (IsKeyDown(KEY_W)) {
+            lastDirection = KEY_W;
             DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
-        } else if (IsKeyDown(KEY_DOWN)) {
-            lastDirection = KEY_DOWN;
+        } else if (IsKeyDown(KEY_S)) {
+            lastDirection = KEY_S;
             DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
         } else {
             switch (lastDirection) {
-                case KEY_RIGHT:
+                case KEY_D:
                     DrawTextureEx(banhistaRight, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
                     break;
-                case KEY_LEFT:
+                case KEY_A:
                     DrawTextureEx(banhistaLeft, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
                     break;
-                case KEY_UP:
+                case KEY_W:
                     DrawTextureEx(banhistaUp, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
                     break;
-                case KEY_DOWN:
+                case KEY_S:
                     DrawTextureEx(banhistaDown, (Vector2){player.posicao.x - PLAYER_SIZE, player.posicao.y - PLAYER_SIZE}, 0.0f, 0.15f, WHITE);
                     break;
             }
