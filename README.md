@@ -1,85 +1,86 @@
-# S.O.S Praia Limpa!
+# 🌊 S.O.S Praia Limpa!
 
-## Sobre o jogo 
+## 🏖️ Sobre o jogo
+O **S.O.S Praia Limpa!** é uma adaptação do Pac-Man ambientada na praia de Boa Viagem. O personagem principal é um banhista cujo objetivo é fugir de tubarões (fantasmas no original) e coletar lixos no mar. Esta versão conecta o jogador à cultura pernambucana, trazendo cenários locais e dinâmicas inovadoras.
 
-O jogo é uma adaptação do Pac-Man, ambientado na praia de Boa Viagem. O personagem principal é um banhista que tem como objetivo fugir de tubarões, representando os fantasmas do jogo original.
-Essa versão traz um toque local ao cenário, utilizando um dos principais pontos turísticos do Recife, e oferece uma nova dinâmica e temática que conecta o jogador à cultura praiana da região. 
-O jogador se movimenta entre corais que simulam as barreiras do Pac-Man e durante a partida ele pode coletar Power-ups que lhe darão imunidade temporária. 
-O público-alvo do jogo inclui adolescentes, jovens adultos e fãs de jogos que buscam uma experiência casual e divertida, além de turistas e moradores interessados na cultura pernambucana.
+<br>
 
+## 🎯 Objetivo
+Limpe o mar coletando lixos e evitando tubarões. Conforme o tempo passa, mais tubarões aparecem, tornando o jogo mais desafiador. Cada lixo coletado ajuda na preservação ambiental. Vença recolhendo todos os resíduos e limpando o mar completamente.
 
-## Objetivo
+<br>
 
-O objetivo principal do jogo é "limpar" o mar, coletando os lixos espalhados pela água no menor tempo possível. O jogador precisa navegar entre corais e evitar tubarões enquanto remove resíduos flutuantes. A cada tempo que passa, a quantidade de tubarões aumenta, dificultando o jogo.
-Cada peça de lixo coletada contribui para a limpeza das águas, refletindo um ambiente mais saudável e menos poluído.
-A meta é recolher todos os detritos presentes, deixando o mar limpo e incentivando a preservação ambiental.
+## 🎮 Como jogar
+1. **WASD**: Movimente o personagem entre as barreiras de corais.
+2. ♻️ **Colete os lixos** sem ser capturado pelos tubarões.
+3. 🔆 **Power-ups** garantem imunidade por 5 segundos.
+4. 🏆 **Vença** ao coletar todos os lixos e confira o ranking.
 
-## Como jogar:
+<br>
 
-1. Use as setas para mover o personagem entre as barreiras de corais
+## 🛠️ Instalação e Execução
 
-2. Seu objetivo será coletar todos os lixos do mar sem ser capturado pelos tubarões
+### Passo 1: Instale a Raylib
 
-3. Powerups podem aparecer a qualquer momento, se coletá-lo você ganha imortalidade por 5 segundos
-
-4. Se você coletar todos os lixos, vencerá e poderá consultar o ranking dos jogadores
-
-## Instruções antes de executar:
-# Passo 1:
-Instale a Raylib (biblioteca utilizada para a interface gráfica do jogo):
-&nbsp;
-
-### Em Linux (Debian/Ubuntu):
-Atualize os pacotes:
-
-      sudo apt update
-
-Instale a Raylib:
-
-    sudo apt install libraylib-dev
-
-Verifique a instalação para garantir que a Raylib foi instalada corretamente:
-
-    pkg-config --libs --cflags raylib
-
-Esse comando deve retornar os caminhos e flags de compilação da Raylib, indicando que ela está pronta para uso
-&nbsp;
-&nbsp;
-
-### Em Windows:
-Acesse o site oficial da Raylib
-
-    https://www.raylib.com/
-
-Baixe o pacote adequado para MinGW/GCC
-&nbsp;
-
-Extraia os arquivos em uma pasta de fácil acesso, como C:\raylib
-&nbsp;
-
-# Passo 2:
-Instale o compilador GCC:
-
-    https://gcc.gnu.org/install/
-
-## Como executar:
-1. Entre no diretório **jogoAED**. Todos os comandos de compilação e execução do jogo devem ser executados a partir desse diretório, pois ele contém os arquivos e as configurações necessárias
-2. O diretório aberto na IDE deve ser o citado acima, não funciona se entrar nele apenas pelo terminal
-3. Aperte F5 para rodar
-4. Outra maneira de iniciar o jogo é pelo terminal, digitando os comandos diretamente no diretório jogoAED:
-  &nbsp;
-
-4.1 Para compilar: 
-
-        mingw32-make.exe RAYLIB_PATH=C:/raylib/raylib PLATFORM=PLATFORM_DESKTOP BUILD_MODE=RELEASE PROJECT_NAME=main OBJS=main.c
-  
-4.2 Para executar:
-  
-         ./main.exe
- 
-5. Em caso de erro em ambos os casos, feche a aba da IDE (aconselha-se o Visual Studio Code) e abra novamente, depois repita o comando
+#### Em Linux (Debian/Ubuntu):
+1. Atualize os pacotes:
+   ```bash
+   sudo apt update
+2. Instale a Raylib:
+   ```bash
+   sudo apt install libraylib-dev
+3. Verifique a instalação:
+   ```bash
+   pkg-config --libs --cflags raylib
    
+#### Em Windows:
+1. Acesse [Raylib](https://www.raylib.com/).
+2. Baixe o pacote para MinGW/GCC.
+3. Extraia os arquivos em uma pasta como C:\raylib.
 
+<br>
 
+### Passo 2: Instale o GCC
+Siga as instruções no site oficial: [GCC](https://gcc.gnu.org/install/).
 
+<br>
 
+## ⚡Como executar o jogo
+
+1. Navegue até o diretório jogoAED.
+2. Escolha um método de execução:
+
+#### Pela IDE (Visual Studio Code):
+- Aperte **F5** para compilar e rodar.
+
+#### Pelo terminal:
+1. Compile o jogo:
+   ```bash
+   mingw32-make.exe RAYLIB_PATH=C:/raylib/raylib PLATFORM=PLATFORM_DESKTOP BUILD_MODE=RELEASE PROJECT_NAME=main OBJS=main.c
+2. Execute o jogo:
+   ```bash
+   ./main.exe
+
+<br>
+
+## 🔧 Solução de Problemas
+
+- **Erro ao compilar ou executar**:
+   1. Feche e reabra a IDE.
+   2. Repita os comandos.
+
+- **Verifique se:**
+  - A Raylib está instalada corretamente.
+  - O GCC está configurado no PATH do sistema.
+  - O diretório correto está aberto na IDE.
+
+<br>
+ 
+## ✍️ Autoria
+- Beatriz Pereira
+- Manuela Cavalcanti
+- Maria Fernanda Ordonho
+- Rafaela Vidal
+- Ygor Rosa
+
+  
